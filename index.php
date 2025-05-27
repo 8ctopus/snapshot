@@ -65,6 +65,62 @@ $router->add('clear snapshots', static function () use ($snapshot) : void {
     echo "All snapshots cleared\n";
 });
 
+$router->add('extract seo', static function () use ($output, $timestamp) : void {
+    $seoData = [];
+
+    // find all html files in current snapshot directory
+    $iterator = new RecursiveIteratorIterator(
+        new RecursiveDirectoryIterator($output)
+    );
+
+    foreach ($iterator as $file) {
+        // only process files from current timestamp directory
+        if (!$file->isFile() || $file->getExtension() !== 'html' || !str_contains($file->getPathname(), $timestamp)) {
+            continue;
+        }
+
+        $html = file_get_contents($file->getPathname());
+        if ($html === false) {
+            continue;
+        }
+
+        $document = new DiDom\Document($html);
+        $url = $file->getPathname();
+
+        $title = $document->find('title')[0]?->text() ?? '';
+        $description = $document->find('meta[name="description"]')[0]?->getAttribute('content') ?? '';
+        $robots = $document->find('meta[name="robots"]')[0]?->getAttribute('content') ?? '';
+
+        $seoData[] = [
+            'url' => $url,
+            'title' => $title,
+            'description' => $description,
+            'robots' => $robots,
+        ];
+    }
+
+    if (empty($seoData)) {
+        echo "No HTML files found in current snapshot\n";
+        return;
+    }
+
+    // get the directory of the first HTML file (they should all be in the same directory)
+    $dir = dirname($seoData[0]['url']);
+    $seoFile = "{$dir}/seo.txt";
+
+    $content = '';
+    foreach ($seoData as $data) {
+        $content .= "URL: {$data['url']}\n";
+        $content .= "Title: {$data['title']}\n";
+        $content .= "Description: {$data['description']}\n";
+        $content .= "Robots: {$data['robots']}\n";
+        $content .= str_repeat('-', 80) . "\n";
+    }
+
+    file_put_contents($seoFile, $content);
+    echo "SEO data saved to {$seoFile}\n";
+});
+
 $router->add('exit', static function () : void {
     exit(0);
 });
