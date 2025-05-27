@@ -26,11 +26,11 @@ $router->add('snapshot <url>...', function (array $args) use ($snapshot) : void 
 
     foreach ($results as $result) {
         if (!isset($result['error'])) {
-            echo "Snapshot taken for {$result['url']}\n";
+            echo "Snapshot taken - {$result['url']}\n";
             continue;
         }
 
-        echo "Error for {$result['url']}: {$result['error']}\n";
+        echo "{$result['error']} - {$result['url']} \n";
     }
 });
 
