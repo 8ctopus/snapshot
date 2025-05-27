@@ -11,29 +11,31 @@ use RuntimeException;
 
 class Snapshot extends Helper
 {
+    private readonly string $timestamp;
     private array $indices = [];
 
-    public function __construct(string $outputDir)
+    public function __construct(string $outputDir, string $timestamp)
     {
         parent::__construct($outputDir);
+
+        $this->timestamp = $timestamp;
     }
 
     /**
-     * Take snapshots of multiple URLs
+     * Take snapshots
      *
-     * @param string[] $urls      the urls to snapshot
-     * @param string   $timestamp the timestamp for the snapshots
+     * @param string[] $urls
      *
      * @return array<int, array{url: string, filename?: string, status?: int, request_headers?: array, response_headers?: array, error?: string}>
      */
-    public function takeSnapshots(array $urls, string $timestamp) : array
+    public function takeSnapshots(array $urls) : array
     {
         $result = [];
         $this->indices = [];
 
         foreach ($urls as $url) {
             try {
-                $result[] = $this->takeSnapshot($url, $timestamp);
+                $result[] = $this->takeSnapshot($url);
             } catch (Exception $e) {
                 $result[] = [
                     'url' => $url,
@@ -46,16 +48,15 @@ class Snapshot extends Helper
     }
 
     /**
-     * Take a snapshot of a single URL
+     * Take a snapshot
      *
-     * @param string $url       the url to snapshot
-     * @param string $timestamp the timestamp for the snapshot
+     * @param string $url
      *
      * @return array{url: string, filename: string, status: int, request_headers: array, response_headers: array}
      *
      * @throws RuntimeException if the request fails
      */
-    private function takeSnapshot(string $url, string $timestamp) : array
+    private function takeSnapshot(string $url) : array
     {
         $request = $this->createRequest($url);
         $response = $this->download($request);
@@ -66,7 +67,7 @@ class Snapshot extends Helper
             throw new RuntimeException("{$url} - {$status}");
         }
 
-        $filename = $this->getFilename($url, $timestamp);
+        $filename = $this->getFilename($url);
 
         $this->saveSnapshot($filename, $request, $response);
 
@@ -120,17 +121,16 @@ class Snapshot extends Helper
      * Generate filename
      *
      * @param string $url
-     * @param string $timestamp
      *
      * @return string
      */
-    protected function getFilename(string $url, string $timestamp) : string
+    protected function getFilename(string $url) : string
     {
         $parsedUrl = parse_url($url);
 
         $domain = $parsedUrl['host'];
         $path = $this->getPathName($parsedUrl['path'] ?? '/');
-        $key = "{$domain}/{$timestamp}";
+        $key = "{$domain}/{$this->timestamp}";
 
         if (!isset($this->indices[$key])) {
             $this->indices[$key] = 1;
@@ -139,7 +139,7 @@ class Snapshot extends Helper
         $index = str_pad((string) $this->indices[$key], 2, '0', STR_PAD_LEFT);
         ++$this->indices[$key];
 
-        return "{$this->outputDir}/{$domain}/{$timestamp}/{$index}-{$path}.json";
+        return "{$this->outputDir}/{$domain}/{$this->timestamp}/{$index}-{$path}.json";
     }
 
     /**

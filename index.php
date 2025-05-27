@@ -8,9 +8,7 @@ use Clue\Commander\Router;
 use Oct8pus\Snapshot\Sitemap;
 use Oct8pus\Snapshot\Snapshot;
 
-$timestamp = date('Y-m-d_H-i');
-
-$snapshot = new Snapshot(__DIR__ . '/snapshots');
+$snapshot = new Snapshot(__DIR__ . '/snapshots', date('Y-m-d_H-i'));
 
 $router = new Router();
 
@@ -21,7 +19,7 @@ $router->add('[--help | -h]', static function () use ($router) : void {
     }
 });
 
-$router->add('snapshot from sitemap <url>', static function (array $args) use ($snapshot, $timestamp) : void {
+$router->add('snapshot from sitemap <url>', static function (array $args) use ($snapshot) : void {
     $sitemap = new Sitemap($args['url'], '');
     $sitemap->analyze();
 
@@ -33,7 +31,7 @@ $router->add('snapshot from sitemap <url>', static function (array $args) use ($
         return;
     }
 
-    $results = $snapshot->takeSnapshots($urls, $timestamp);
+    $results = $snapshot->takeSnapshots($urls);
 
     foreach ($results as $result) {
         if (!isset($result['error'])) {
@@ -45,10 +43,10 @@ $router->add('snapshot from sitemap <url>', static function (array $args) use ($
     }
 });
 
-$router->add('snapshot <urls>...', static function (array $args) use ($snapshot, $timestamp) : void {
+$router->add('snapshot <urls>...', static function (array $args) use ($snapshot) : void {
     $urls = $args['urls'];
 
-    $results = $snapshot->takeSnapshots($urls, $timestamp);
+    $results = $snapshot->takeSnapshots($urls);
 
     foreach ($results as $result) {
         if (!isset($result['error'])) {
