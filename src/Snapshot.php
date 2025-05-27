@@ -106,8 +106,8 @@ class Snapshot
         $headers = $response->getHeaders();
         $body = (string) $response->getBody();
 
-        $contentEncoding = $headers['content-encoding'][0] ?? null;
-        $transferEncoding = $headers['transfer-encoding'][0] ?? null;
+        $contentEncoding = $response->getHeaderLine('content-encoding');
+        $transferEncoding = $response->getHeaderLine('transfer-encoding');
 
         if ($contentEncoding) {
             $body = $this->decompressBody($body, $contentEncoding);
@@ -117,7 +117,7 @@ class Snapshot
             $body = \gzdecode($body);
         }
 
-        $contentType = $headers['content-type'][0] ?? 'text/plain';
+        $contentType = $response->getHeaderLine('content-type') ?: 'text/plain';
         $extension = $this->getFileExtension($contentType);
 
         if (!is_dir(dirname($filename))) {
@@ -210,28 +210,22 @@ class Snapshot
     {
         $contentType = strtolower($contentType);
 
-        if (strpos($contentType, 'text/html') !== false) {
-            return 'html';
-        }
+        $mappings = [
+            'text/html' => 'html',
+            'application/xhtml+xml' => 'html',
+            'application/json' => 'json',
+            'text/plain' => 'txt',
+            'text/xml' => 'xml',
+            'application/xml' => 'xml',
+            'text/css' => 'css',
+            'application/javascript' => 'js',
+            'text/javascript' => 'js',
+        ];
 
-        if (strpos($contentType, 'application/json') !== false) {
-            return 'json';
-        }
-
-        if (strpos($contentType, 'text/plain') !== false) {
-            return 'txt';
-        }
-
-        if (strpos($contentType, 'text/xml') !== false || strpos($contentType, 'application/xml') !== false) {
-            return 'xml';
-        }
-
-        if (strpos($contentType, 'text/css') !== false) {
-            return 'css';
-        }
-
-        if (strpos($contentType, 'application/javascript') !== false || strpos($contentType, 'text/javascript') !== false) {
-            return 'js';
+        foreach ($mappings as $type => $extension) {
+            if (strpos($contentType, $type) !== false) {
+                return $extension;
+            }
         }
 
         return 'txt';
