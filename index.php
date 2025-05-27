@@ -46,4 +46,29 @@ $router->add('clear snapshots', static function () use ($snapshot) : void {
     echo "All snapshots cleared\n";
 });
 
+$router->add('snapshot-sitemap <url>', static function (array $args) use ($snapshot) : void {
+    $sitemap = new Sitemap($args['url'], '');
+    $sitemap->analyze();
+
+    $links = $sitemap->links();
+    $urls = array_column($links, 'loc');
+
+    if (empty($urls)) {
+        echo "No URLs found in sitemap\n";
+        return;
+    }
+
+    $timestamp = date('Y-m-d_H-i');
+    $results = $snapshot->takeSnapshots($urls, $timestamp);
+
+    foreach ($results as $result) {
+        if (!isset($result['error'])) {
+            echo "Snapshot taken - {$result['url']}\n";
+            continue;
+        }
+
+        echo "{$result['error']} - {$result['url']} \n";
+    }
+});
+
 $router->handleArgv($argv);
