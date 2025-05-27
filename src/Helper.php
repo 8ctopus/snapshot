@@ -12,12 +12,15 @@ use RuntimeException;
 
 class Helper
 {
-    protected string $outputDir;
-    private Shuttle $client;
+    protected readonly string $timestamp;
+    protected readonly string $outputDir;
+    private readonly Shuttle $client;
 
-    public function __construct(string $outputDir)
+    public function __construct(string $outputDir, string $timestamp)
     {
         $this->outputDir = rtrim($outputDir, '/');
+        $this->timestamp = $timestamp;
+
         $this->client = new Shuttle();
     }
 

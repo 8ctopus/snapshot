@@ -11,14 +11,11 @@ use RuntimeException;
 
 class Snapshot extends Helper
 {
-    private readonly string $timestamp;
     private array $indices = [];
 
     public function __construct(string $outputDir, string $timestamp)
     {
-        parent::__construct($outputDir);
-
-        $this->timestamp = $timestamp;
+        parent::__construct($outputDir, $timestamp);
     }
 
     /**

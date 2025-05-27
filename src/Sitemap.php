@@ -13,10 +13,11 @@ class Sitemap extends Helper
     private readonly string $url;
     private readonly array $links;
 
-    public function __construct(string $url, string $outputDir)
+    public function __construct(string $url, string $outputDir, string $timestamp)
     {
         $this->url = $url;
-        parent::__construct($outputDir);
+
+        parent::__construct($outputDir, $timestamp);
     }
 
     /**
