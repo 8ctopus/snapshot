@@ -128,6 +128,39 @@ $router->add('extract seo', static function () use ($output, $timestamp) : void 
     echo "SEO data saved to {$seoFile}\n";
 });
 
+$router->add('download robots <url>', static function (array $args) use ($output, $timestamp) : void {
+    $url = $args['url'];
+    if (!str_ends_with($url, 'robots.txt')) {
+        echo "URL must end with robots.txt\n";
+        return;
+    }
+
+    $request = (new HttpSoft\Message\Request('GET', $url))
+        ->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
+
+    $client = new Nimbly\Shuttle\Shuttle();
+    $response = $client->sendRequest($request);
+
+    if ($response->getStatusCode() !== 200) {
+        echo "Failed to download robots.txt from {$url}\n";
+        return;
+    }
+
+    // extract domain from URL for directory structure
+    $parsedUrl = parse_url($url);
+    $domain = $parsedUrl['host'];
+    $dir = "{$output}/{$domain}/{$timestamp}";
+
+    if (!is_dir($dir)) {
+        echo "No snapshot directory found for {$domain}\n";
+        return;
+    }
+
+    $robotsFile = "{$dir}/robots.txt";
+    file_put_contents($robotsFile, (string) $response->getBody());
+    echo "robots.txt saved to {$robotsFile}\n";
+});
+
 $router->add('exit', static function () : void {
     exit(0);
 });
