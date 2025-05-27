@@ -86,19 +86,15 @@ class Snapshot extends Helper
      */
     private function saveSnapshot(string $filename, Request $request, ResponseInterface $response) : void
     {
-        $headers = $response->getHeaders();
-        $body = (string) $response->getBody();
-
-        $body = $this->decompressResponse($body, $response);
-
-        $contentType = $response->getHeaderLine('content-type') ?: 'text/plain';
-        $extension = $this->getFileExtension($contentType);
-
         if (!is_dir(dirname($filename))) {
             mkdir(dirname($filename), 0777, true);
         }
 
-        $headersData = [
+        $type = $response->getHeaderLine('content-type');
+        $extension = $this->getFileExtension($type);
+        $bodyFile = basename($filename, '.json') . '.' . $extension;
+
+        $headers = [
             'request' => [
                 'method' => $request->getMethod(),
                 'url' => (string) $request->getUri(),
@@ -106,53 +102,27 @@ class Snapshot extends Helper
             ],
             'response' => [
                 'status' => $response->getStatusCode(),
-                'headers' => $headers,
-                'body_file' => basename($filename, '.json') . '.' . $extension,
+                'headers' => $response->getHeaders(),
+                'body_file' => $bodyFile,
             ],
         ];
-        file_put_contents($filename, json_encode($headersData, JSON_PRETTY_PRINT));
 
-        $bodyFilename = dirname($filename) . '/' . basename($filename, '.json') . '.' . $extension;
-        file_put_contents($bodyFilename, $body);
+        file_put_contents($filename, json_encode($headers, JSON_PRETTY_PRINT));
+
+        $bodyFilename = dirname($filename) . "/{$bodyFile}";
+
+        file_put_contents($bodyFilename, $this->decompressResponse($response));
     }
 
     /**
-     * Decompress response body
-     *
-     * @param string            $body     The body to decompress
-     * @param ResponseInterface $response The response object
-     *
-     * @return string The decompressed body
-     */
-    private function decompressResponse(string $body, ResponseInterface $response) : string
-    {
-        $contentEncoding = $response->getHeaderLine('content-encoding');
-        if ($contentEncoding) {
-            return $this->decompressBody($body, $contentEncoding);
-        }
-
-        $transferEncoding = $response->getHeaderLine('transfer-encoding');
-        if ($transferEncoding && strpos($transferEncoding, 'gzip') !== false) {
-            return \gzdecode($body);
-        }
-
-        // check for gzip magic number
-        if (substr($body, 0, 2) === "\x1f\x8b") {
-            return \gzdecode($body);
-        }
-
-        return $body;
-    }
-
-    /**
-     * Generate filename for snapshot
+     * Generate filename
      *
      * @param string $url       The URL to snapshot
      * @param string $timestamp The timestamp for the snapshot
      *
      * @return string The generated filename
      */
-    private function getFilename(string $url, string $timestamp) : string
+    protected function getFilename(string $url, string $timestamp) : string
     {
         $parsedUrl = parse_url($url);
 
@@ -168,23 +138,5 @@ class Snapshot extends Helper
         ++$this->indices[$key];
 
         return "{$this->outputDir}/{$domain}/{$timestamp}/{$index}-{$path}.json";
-    }
-
-    /**
-     * Get path name from URL path
-     *
-     * @param string $path The path to extract name from
-     *
-     * @return string The extracted path name
-     */
-    private function getPathName(string $path) : string
-    {
-        $path = trim($path, '/');
-
-        if ($path === '') {
-            return 'index';
-        }
-
-        return str_replace('/', '_', $path);
     }
 }

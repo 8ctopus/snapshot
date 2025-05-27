@@ -35,11 +35,10 @@ class Sitemap extends Helper
             throw new RuntimeException("Failed to fetch {$url}: HTTP {$response->getStatusCode()}");
         }
 
-        $body = $this->decompressBody((string) $response->getBody(), $response->getHeaderLine('content-encoding'));
+        $body = $this->decompressResponse($response);
         $links = self::extractLinks($url, $body);
 
         self::showLinks($links);
-        //self::testLinks($links);
     }
 
     /**
@@ -88,7 +87,7 @@ class Sitemap extends Helper
         foreach ($urls as $url) {
             $response = $this->download($this->createRequest($url));
 
-            $page = $this->decompressBody((string) $response->getBody(), $response->getHeaderLine('content-encoding'));
+            $page = $this->decompressResponse($response);
 
             $document = new Document($page, false, 'UTF-8', Document::TYPE_XML);
 
@@ -158,84 +157,4 @@ class Sitemap extends Helper
             echo("{$lastmod}  {$link['loc']}\n");
         }
     }
-
-    /**
-     * Test sitemap links
-     *
-     * @param array $links
-     */
-    /*
-    public function testLinks(array $links) : void
-    {
-        Logger::title('test links');
-
-        // test sitemap links
-        $count = count($links);
-
-        foreach ($links as $index => $link) {
-            $url = $link['loc'];
-            $page = '';
-            $info = [];
-
-            self::updateConsole("test {$index}/{$count} {$url}");
-
-            if (!Curl::download($url, $page, $info, false)) {
-                $error = Curl::error($info);
-                Logger::error("download url - {$error}");
-                continue;
-            }
-
-            if ($info['http_code'] !== 200) {
-                Helper::logResponseInfo($info, false);
-                Logger::warning('Page in sitemap but redirected to a new page.');
-                continue;
-            }
-
-            $parser = new Parser($url, $page);
-
-            $successes = [];
-            $warnings = [];
-            $errors = [];
-
-            // FIX ME test not https
-            // FIX ME test canonical
-
-            $robots = $parser->robots();
-
-            // check for noindex
-            if (count($robots) && strpos($robots[0], 'noindex') !== false) {
-                $errors[] = 'Page marked as `noindex` but included in sitemap.';
-            }
-
-            // check analytics
-            $analytics = $parser->analytics();
-
-            if (in_array('yandex', $analytics, true)) {
-                $successes[] = 'Page has Yandex analytics tracker.';
-            }
-
-            if (!in_array('google', $analytics, true)) {
-                $warnings[] = 'Page does not have Google analytics tracker.';
-            }
-
-            if (count($errors) + count($warnings) + count($successes) === 0) {
-                continue;
-            }
-
-            Helper::logResponseInfo($info, false);
-
-            foreach ($errors as $error) {
-                Logger::error($error);
-            }
-
-            foreach ($warnings as $warning) {
-                Logger::warning($warning);
-            }
-
-            foreach ($successes as $success) {
-                Logger::note($success);
-            }
-        }
-    }
-    */
 }

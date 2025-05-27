@@ -75,41 +75,54 @@ class Helper
     }
 
     /**
-     * Decompress response body based on content encoding
+     * Get path name from URL path
      *
-     * @param string $body            The body to decompress
-     * @param string $contentEncoding The content encoding to use
+     * @param string $path The path to extract name from
+     *
+     * @return string The extracted path name
+     */
+    protected function getPathName(string $path) : string
+    {
+        $path = trim($path, '/');
+
+        if ($path === '') {
+            return 'index';
+        }
+
+        return str_replace('/', '_', $path);
+    }
+
+    /**
+     * Decompress response body
+     *
+     * @param ResponseInterface $response The response object
      *
      * @return string The decompressed body
-     *
-     * @throws RuntimeException If the content encoding is not supported
      */
-    protected function decompressBody(string $body, string $contentEncoding) : string
+    protected function decompressResponse(ResponseInterface $response) : string
     {
-        $contentEncoding = strtolower($contentEncoding);
-        $encodings = array_map('trim', explode(',', $contentEncoding));
+        $body = (string) $response->getBody();
+        $encoding = $response->getHeaderLine('content-encoding');
 
-        foreach (array_reverse($encodings) as $encoding) {
-            switch ($encoding) {
-                case 'gzip':
-                    $body = \gzdecode($body);
-                    break;
+        switch ($encoding) {
+            case 'gzip':
+                $body = \gzdecode($body);
+                break;
 
-                case 'deflate':
-                    $body = \gzinflate($body);
-                    break;
+            case 'deflate':
+                $body = \gzinflate($body);
+                break;
 
-                case 'br':
-                    if (function_exists('\brotli_uncompress')) {
-                        $body = \brotli_uncompress($body);
-                    } else {
-                        throw new RuntimeException('Brotli decompression is not available. Please install the brotli extension.');
-                    }
-                    break;
+            case 'br':
+                if (!function_exists('\brotli_uncompress')) {
+                    throw new RuntimeException('Brotli decompression is not available. Please install the brotli extension.');
+                }
 
-                default:
-                    throw new RuntimeException("Unsupported content encoding: {$encoding}");
-            }
+                $body = \brotli_uncompress($body);
+                break;
+
+            default:
+                throw new RuntimeException("Unsupported content encoding: {$encoding}");
         }
 
         return $body;
