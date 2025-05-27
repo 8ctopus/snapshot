@@ -4,22 +4,19 @@ declare(strict_types=1);
 
 namespace Oct8pus\Snapshot;
 
+use HttpSoft\Message\Request;
 use Nimbly\Shuttle\Shuttle;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Nimbly\Capsule\Factory\RequestFactory;
 
 class Snapshot
 {
     private Shuttle $client;
     private string $outputDir;
-    private RequestFactory $requestFactory;
 
     public function __construct(string $outputDir)
     {
         $this->client = new Shuttle();
         $this->outputDir = rtrim($outputDir, '/');
-        $this->requestFactory = new RequestFactory();
     }
 
     /**
@@ -27,7 +24,7 @@ class Snapshot
      */
     public function takeSnapshot(string $url, string $timestamp): array
     {
-        $request = $this->requestFactory->createRequest('GET', $url);
+        $request = new Request('GET', $url);
         $response = $this->client->sendRequest($request);
 
         if ($response->getStatusCode() !== 200) {
