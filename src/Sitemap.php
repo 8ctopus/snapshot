@@ -11,6 +11,8 @@ use RuntimeException;
 
 class Sitemap extends Helper
 {
+    private readonly array $links;
+
     public function __construct(string $outputDir)
     {
         parent::__construct($outputDir);
@@ -119,20 +121,19 @@ class Sitemap extends Helper
             return 0;
         });
 
+        $this->links = $links;
         return $links;
     }
 
     /**
      * Show sitemap links
-     *
-     * @param array $links
      */
-    public function showLinks(array $links) : void
+    public function showLinks() : void
     {
-        $count = count($links);
+        $count = count($this->links);
         echo("sitemap ({$count})\n");
 
-        foreach ($links as $link) {
+        foreach ($this->links as $link) {
             $lastmod = $link['lastmod'] ?? '';
 
             if (!empty($lastmod)) {
