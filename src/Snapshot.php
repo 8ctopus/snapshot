@@ -29,21 +29,21 @@ class Snapshot extends Helper
      */
     public function takeSnapshots(array $urls, string $timestamp) : array
     {
-        $results = [];
+        $result = [];
         $this->indices = [];
 
         foreach ($urls as $url) {
             try {
-                $results[] = $this->takeSnapshot($url, $timestamp);
+                $result[] = $this->takeSnapshot($url, $timestamp);
             } catch (Exception $e) {
-                $results[] = [
+                $result[] = [
                     'url' => $url,
                     'error' => $e->getMessage(),
                 ];
             }
         }
 
-        return $results;
+        return $result;
     }
 
     /**
