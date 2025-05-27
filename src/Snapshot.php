@@ -61,7 +61,7 @@ class Snapshot extends Helper
             throw new RuntimeException("{$url} - {$status}");
         }
 
-        $filename = $this->getFilename($url);
+        $filename = $this->getFilename($url, 'json');
 
         $this->saveSnapshot($filename, $request, $response);
 

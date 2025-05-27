@@ -52,10 +52,11 @@ class Helper
      * Generate filename
      *
      * @param string $url
+     * @param string $extension
      *
      * @return string
      */
-    protected function getFilename(string $url) : string
+    protected function getFilename(string $url, string $extension) : string
     {
         $parsedUrl = parse_url($url);
 
@@ -70,7 +71,7 @@ class Helper
         $index = str_pad((string) $this->indices[$key], 2, '0', STR_PAD_LEFT);
         ++$this->indices[$key];
 
-        return "{$this->outputDir}/{$domain}/{$this->timestamp}/{$index}-{$path}.json";
+        return "{$this->outputDir}/{$domain}/{$this->timestamp}/{$index}-{$path}.{$extension}";
     }
 
     /**

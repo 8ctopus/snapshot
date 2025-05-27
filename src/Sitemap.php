@@ -40,6 +40,15 @@ class Sitemap extends Helper
 
         $body = $this->decompressResponse($response);
 
+        $filename = $this->getFilename($this->url, 'xml');
+        $dir = dirname($filename);
+
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+
+        file_put_contents($filename, $body);
+
         $document = new Document($body, false, 'UTF-8', Document::TYPE_XML);
 
         // add namespace
@@ -75,8 +84,17 @@ class Sitemap extends Helper
         // parse sub-sitemaps
         foreach ($urls as $url) {
             $response = $this->download($this->createRequest($url));
-
             $page = $this->decompressResponse($response);
+
+            // save sub-sitemap
+            $filename = $this->getFilename($url, 'xml');
+            $dir = dirname($filename);
+
+            if (!is_dir($dir)) {
+                mkdir($dir, 0777, true);
+            }
+
+            file_put_contents($filename, $page);
 
             $document = new Document($page, false, 'UTF-8', Document::TYPE_XML);
 
