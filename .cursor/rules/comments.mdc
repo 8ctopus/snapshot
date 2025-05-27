@@ -1,0 +1,8 @@
+---
+description: comments
+globs:
+alwaysApply: true
+---
+- single line comments are always lowercase and end without dot
+- only put comments when the code is very complex to understand
+- fully document public methods including parameters, the description of parameters is always lowercase

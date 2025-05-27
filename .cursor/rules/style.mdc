@@ -1,0 +1,7 @@
+---
+description: comments
+globs:
+alwaysApply: true
+---
+- always use linux line returns
+- always end the file with a line return
