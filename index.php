@@ -71,4 +71,21 @@ $router->add('clear snapshots', static function () use ($snapshot) : void {
     echo "All snapshots cleared\n";
 });
 
-$router->handleArgv($argv);
+$router->add('exit', static function () : void {
+    exit(0);
+});
+
+while (true) {
+    echo "\nEnter command (or 'exit' to quit): ";
+    $input = trim(fgets(STDIN));
+
+    if (empty($input)) {
+        continue;
+    }
+
+    try {
+        $router->handleArgv(explode(' ', $input));
+    } catch (Exception $e) {
+        echo "Error: {$e->getMessage()}\n";
+    }
+}
