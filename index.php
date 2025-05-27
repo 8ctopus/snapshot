@@ -41,7 +41,7 @@ $router->add('sitemap <url>', static function (array $args) : void {
         ->show();
 });
 
-$router->add('clear', static function () use ($snapshot) : void {
+$router->add('clear snapshots', static function () use ($snapshot) : void {
     $snapshot->clear();
     echo "All snapshots cleared\n";
 });
