@@ -19,34 +19,7 @@ $router->add('[--help | -h]', static function () use ($router) : void {
     }
 });
 
-$router->add('snapshot <url>...', static function (array $args) use ($snapshot) : void {
-    $timestamp = date('Y-m-d_H-i');
-    $urls = $args['url'];
-
-    $results = $snapshot->takeSnapshots($urls, $timestamp);
-
-    foreach ($results as $result) {
-        if (!isset($result['error'])) {
-            echo "Snapshot taken - {$result['url']}\n";
-            continue;
-        }
-
-        echo "{$result['error']} - {$result['url']} \n";
-    }
-});
-
-$router->add('sitemap <url>', static function (array $args) : void {
-    (new Sitemap($args['url'], ''))
-        ->analyze()
-        ->show();
-});
-
-$router->add('clear snapshots', static function () use ($snapshot) : void {
-    $snapshot->clear();
-    echo "All snapshots cleared\n";
-});
-
-$router->add('snapshot-sitemap <url>', static function (array $args) use ($snapshot) : void {
+$router->add('snapshot from sitemap <url>', static function (array $args) use ($snapshot) : void {
     $sitemap = new Sitemap($args['url'], '');
     $sitemap->analyze();
 
@@ -69,6 +42,33 @@ $router->add('snapshot-sitemap <url>', static function (array $args) use ($snaps
 
         echo "{$result['error']} - {$result['url']} \n";
     }
+});
+
+$router->add('snapshot <url>...', static function (array $args) use ($snapshot) : void {
+    $timestamp = date('Y-m-d_H-i');
+    $urls = $args['url'];
+
+    $results = $snapshot->takeSnapshots($urls, $timestamp);
+
+    foreach ($results as $result) {
+        if (!isset($result['error'])) {
+            echo "Snapshot taken - {$result['url']}\n";
+            continue;
+        }
+
+        echo "{$result['error']} - {$result['url']} \n";
+    }
+});
+
+$router->add('sitemap <url>', static function (array $args) : void {
+    (new Sitemap($args['url'], ''))
+        ->analyze()
+        ->show(false);
+});
+
+$router->add('clear snapshots', static function () use ($snapshot) : void {
+    $snapshot->clear();
+    echo "All snapshots cleared\n";
 });
 
 $router->handleArgv($argv);

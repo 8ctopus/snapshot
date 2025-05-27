@@ -117,13 +117,23 @@ class Sitemap extends Helper
 
     /**
      * Show sitemap links
+     *
+     * @param bool $lastUpdated
      */
-    public function show() : self
+    public function show(bool $lastUpdated) : self
     {
         $count = count($this->links);
         echo("sitemap ({$count})\n");
 
         $links = $this->links;
+
+        if (!$lastUpdated) {
+            foreach ($links as $link) {
+                echo("{$link['loc']}\n");
+            }
+
+            return $this;
+        }
 
         // sort sitemap by date
         usort($links, static function (array $a, array $b) {
@@ -143,7 +153,7 @@ class Sitemap extends Helper
 
             $lastmod = str_pad($lastmod, 18, ' ', STR_PAD_RIGHT);
 
-            echo("{$lastmod}  {$link['loc']}\n");
+            echo("{$lastmod} {$link['loc']}\n");
         }
 
         return $this;
