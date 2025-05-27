@@ -89,13 +89,15 @@ class Snapshot extends Helper
      */
     private function saveSnapshot(string $filename, RequestInterface $request, ResponseInterface $response) : void
     {
-        if (!is_dir(dirname($filename))) {
-            mkdir(dirname($filename), 0777, true);
+        $dir = dirname($filename);
+
+        if (!is_dir($dir)) {
+            mkdir($dir, 0777, true);
         }
 
         $type = $response->getHeaderLine('content-type');
         $extension = $this->getFileExtension($type);
-        $bodyFile = basename($filename, '.json') . '.' . $extension;
+        $contentFile = basename($filename, '.json') . '.' . $extension;
 
         $headers = [
             'request' => [
@@ -106,15 +108,13 @@ class Snapshot extends Helper
             'response' => [
                 'status' => $response->getStatusCode(),
                 'headers' => $response->getHeaders(),
-                'body_file' => $bodyFile,
+                'contentFile' => $contentFile,
             ],
         ];
 
         file_put_contents($filename, json_encode($headers, JSON_PRETTY_PRINT));
 
-        $bodyFilename = dirname($filename) . "/{$bodyFile}";
-
-        file_put_contents($bodyFilename, $this->decompressResponse($response));
+        file_put_contents("{$dir}/{$contentFile}", $this->decompressResponse($response));
     }
 
     /**
