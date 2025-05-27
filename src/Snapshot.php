@@ -7,6 +7,7 @@ namespace Oct8pus\Snapshot;
 use HttpSoft\Message\Request;
 use Nimbly\Shuttle\Shuttle;
 use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
 class Snapshot
 {
@@ -21,6 +22,13 @@ class Snapshot
 
     /**
      * Take a snapshot of a single URL
+     *
+     * @param string $url       The URL to snapshot
+     * @param string $timestamp The timestamp for the snapshot
+     *
+     * @throws RuntimeException If the request fails
+     *
+     * @return array{url: string, filename: string, status: int, request_headers: array, response_headers: array}
      */
     public function takeSnapshot(string $url, string $timestamp): array
     {
@@ -43,7 +51,7 @@ class Snapshot
         $response = $this->client->sendRequest($request);
 
         if ($response->getStatusCode() !== 200) {
-            throw new \RuntimeException("Failed to fetch {$url}: HTTP {$response->getStatusCode()}");
+            throw new RuntimeException("Failed to fetch {$url}: HTTP {$response->getStatusCode()}");
         }
 
         $filename = $this->getFilename($url, $timestamp);
@@ -61,8 +69,10 @@ class Snapshot
     /**
      * Take snapshots of multiple URLs
      *
-     * @param string[] $urls
-     * @return array
+     * @param string[] $urls      The URLs to snapshot
+     * @param string   $timestamp The timestamp for the snapshots
+     *
+     * @return array<int, array{url: string, filename?: string, status?: int, request_headers?: array, response_headers?: array, error?: string}>
      */
     public function takeSnapshots(array $urls, string $timestamp): array
     {
@@ -84,6 +94,10 @@ class Snapshot
 
     /**
      * Save snapshot to file
+     *
+     * @param string   $filename The filename to save to
+     * @param Request  $request  The request object
+     * @param ResponseInterface $response The response object
      */
     private function saveSnapshot(string $filename, Request $request, ResponseInterface $response): void
     {
@@ -122,10 +136,9 @@ class Snapshot
             'response' => [
                 'status' => $response->getStatusCode(),
                 'headers' => $headers,
-                'body_file' => basename($filename, '.json') . '.' . $extension
-            ]
+                'body_file' => basename($filename, '.json') . '.' . $extension,
+            ],
         ];
-
         file_put_contents($filename, json_encode($headersData, JSON_PRETTY_PRINT));
 
         // Save body to separate file
@@ -134,44 +147,50 @@ class Snapshot
     }
 
     /**
-     * Decompress response body based on content encoding
+     * Generate filename for snapshot
+     *
+     * @param string $url       The URL to snapshot
+     * @param string $timestamp The timestamp for the snapshot
+     *
+     * @return string The generated filename
      */
-    private function decompressBody(string $body, string $contentEncoding): string
+    private function getFilename(string $url, string $timestamp): string
     {
-        $contentEncoding = strtolower($contentEncoding);
+        $urlHash = md5($url);
+        $domain = $this->extractDomain($url);
 
-        // Handle multiple encodings (e.g., "gzip, deflate")
-        $encodings = array_map('trim', explode(',', $contentEncoding));
+        return "{$this->outputDir}/{$domain}/{$timestamp}/{$urlHash}.json";
+    }
 
-        // Apply decompression in reverse order
-        foreach (array_reverse($encodings) as $encoding) {
-            switch ($encoding) {
-                case 'gzip':
-                    $body = gzdecode($body);
-                    break;
-
-                case 'deflate':
-                    $body = gzinflate($body);
-                    break;
-
-                case 'br':
-                    if (function_exists('brotli_uncompress')) {
-                        $body = brotli_uncompress($body);
-                    } else {
-                        throw new \RuntimeException('Brotli decompression is not available. Please install the brotli extension.');
-                    }
-                    break;
-
-                default:
-                    throw new \RuntimeException("Unsupported content encoding: {$encoding}");
-            }
+    /**
+     * Extract domain from URL
+     *
+     * @param string $url The URL to extract domain from
+     *
+     * @throws \InvalidArgumentException If the URL is invalid
+     *
+     * @return string The extracted domain
+     */
+    private function extractDomain(string $url): string
+    {
+        $parsedUrl = parse_url($url);
+        if (!isset($parsedUrl['host'])) {
+            throw new \InvalidArgumentException("Invalid URL: {$url}");
         }
 
-        return $body;
+        // Remove www. prefix if present
+        $domain = preg_replace('/^www\./', '', $parsedUrl['host']);
+
+        // Replace dots with underscores to avoid filesystem issues
+        return str_replace('.', '_', $domain);
     }
 
     /**
      * Get file extension based on content type
+     *
+     * @param string $contentType The content type to get extension for
+     *
+     * @return string The file extension
      */
     private function getFileExtension(string $contentType): string
     {
@@ -206,29 +225,46 @@ class Snapshot
     }
 
     /**
-     * Generate filename for snapshot
+     * Decompress response body based on content encoding
+     *
+     * @param string $body            The body to decompress
+     * @param string $contentEncoding The content encoding to use
+     *
+     * @throws RuntimeException If the content encoding is not supported
+     *
+     * @return string The decompressed body
      */
-    private function getFilename(string $url, string $timestamp): string
+    private function decompressBody(string $body, string $contentEncoding): string
     {
-        $urlHash = md5($url);
-        $domain = $this->extractDomain($url);
-        return "{$this->outputDir}/{$domain}/{$timestamp}/{$urlHash}.json";
-    }
+        $contentEncoding = strtolower($contentEncoding);
 
-    /**
-     * Extract domain from URL
-     */
-    private function extractDomain(string $url): string
-    {
-        $parsedUrl = parse_url($url);
-        if (!isset($parsedUrl['host'])) {
-            throw new \InvalidArgumentException("Invalid URL: {$url}");
+        // Handle multiple encodings (e.g., "gzip, deflate")
+        $encodings = array_map('trim', explode(',', $contentEncoding));
+
+        // Apply decompression in reverse order
+        foreach (array_reverse($encodings) as $encoding) {
+            switch ($encoding) {
+                case 'gzip':
+                    $body = gzdecode($body);
+                    break;
+
+                case 'deflate':
+                    $body = gzinflate($body);
+                    break;
+
+                case 'br':
+                    if (function_exists('brotli_uncompress')) {
+                        $body = brotli_uncompress($body);
+                    } else {
+                        throw new RuntimeException('Brotli decompression is not available. Please install the brotli extension.');
+                    }
+                    break;
+
+                default:
+                    throw new RuntimeException("Unsupported content encoding: {$encoding}");
+            }
         }
 
-        // Remove www. prefix if present
-        $domain = preg_replace('/^www\./', '', $parsedUrl['host']);
-
-        // Replace dots with underscores to avoid filesystem issues
-        return str_replace('.', '_', $domain);
+        return $body;
     }
 }
