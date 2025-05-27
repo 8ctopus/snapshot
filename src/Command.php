@@ -40,11 +40,12 @@ class Command
             $results = $this->snapshot->takeSnapshots($urls, $timestamp);
 
             foreach ($results as $result) {
-                if (isset($result['error'])) {
-                    echo "Error for {$result['url']}: {$result['error']}\n";
-                } else {
-                    echo "Snapshot taken for {$result['url']} -> {$result['filename']}\n";
+                if (!isset($result['error'])) {
+                    echo "Snapshot taken for {$result['url']}\n";
+                    continue;
                 }
+
+                echo "Error for {$result['url']}: {$result['error']}\n";
             }
         });
     }
