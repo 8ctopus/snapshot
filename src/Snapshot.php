@@ -6,6 +6,7 @@ namespace Oct8pus\Snapshot;
 
 use Exception;
 use HttpSoft\Message\Request;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
 
@@ -67,6 +68,7 @@ class Snapshot extends Helper
         }
 
         $filename = $this->getFilename($url, $timestamp);
+
         $this->saveSnapshot($filename, $request, $response);
 
         return [
@@ -81,11 +83,11 @@ class Snapshot extends Helper
     /**
      * Save snapshot to file
      *
-     * @param string            $filename The filename to save to
-     * @param Request           $request  The request object
-     * @param ResponseInterface $response The response object
+     * @param string            $filename
+     * @param RequestInterface  $request
+     * @param ResponseInterface $response
      */
-    private function saveSnapshot(string $filename, Request $request, ResponseInterface $response) : void
+    private function saveSnapshot(string $filename, RequestInterface $request, ResponseInterface $response) : void
     {
         if (!is_dir(dirname($filename))) {
             mkdir(dirname($filename), 0777, true);
