@@ -35,7 +35,6 @@ class Snapshot
     {
         $request = new Request('GET', $url);
 
-        // add browser-like headers
         $request = $request
             ->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')
             ->withHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8')
@@ -105,29 +104,24 @@ class Snapshot
         $headers = $response->getHeaders();
         $body = (string) $response->getBody();
 
-        // check for compression in various headers
         $contentEncoding = $headers['content-encoding'][0] ?? null;
         $transferEncoding = $headers['transfer-encoding'][0] ?? null;
 
-        // handle compression
         if ($contentEncoding) {
             $body = $this->decompressBody($body, $contentEncoding);
         } elseif ($transferEncoding && strpos($transferEncoding, 'gzip') !== false) {
             $body = \gzdecode($body);
-        } elseif (substr($body, 0, 2) === "\x1f\x8b") { // check for gzip magic number
+        } elseif (substr($body, 0, 2) === "\x1f\x8b") { // gzip magic number
             $body = \gzdecode($body);
         }
 
-        // get content type from headers
         $contentType = $headers['content-type'][0] ?? 'text/plain';
         $extension = $this->getFileExtension($contentType);
 
-        // create directory if it doesn't exist
         if (!is_dir(dirname($filename))) {
             mkdir(dirname($filename), 0777, true);
         }
 
-        // save headers to json file
         $headersData = [
             'request' => [
                 'method' => $request->getMethod(),
@@ -142,7 +136,6 @@ class Snapshot
         ];
         file_put_contents($filename, json_encode($headersData, JSON_PRETTY_PRINT));
 
-        // save body to separate file
         $bodyFilename = dirname($filename) . '/' . basename($filename, '.json') . '.' . $extension;
         file_put_contents($bodyFilename, $body);
     }
@@ -179,10 +172,7 @@ class Snapshot
             throw new InvalidArgumentException("Invalid URL: {$url}");
         }
 
-        // remove www. prefix if present
         $domain = preg_replace('/^www\./', '', $parsedUrl['host']);
-
-        // replace dots with underscores to avoid filesystem issues
         return str_replace('.', '_', $domain);
     }
 
@@ -221,7 +211,6 @@ class Snapshot
             return 'js';
         }
 
-        // default to txt if content type is unknown
         return 'txt';
     }
 
@@ -238,11 +227,8 @@ class Snapshot
     private function decompressBody(string $body, string $contentEncoding): string
     {
         $contentEncoding = strtolower($contentEncoding);
-
-        // handle multiple encodings (e.g., "gzip, deflate")
         $encodings = array_map('trim', explode(',', $contentEncoding));
 
-        // apply decompression in reverse order
         foreach (array_reverse($encodings) as $encoding) {
             switch ($encoding) {
                 case 'gzip':
