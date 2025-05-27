@@ -25,6 +25,21 @@ class Snapshot
     public function takeSnapshot(string $url, string $timestamp): array
     {
         $request = new Request('GET', $url);
+
+        // Add browser-like headers
+        $request = $request
+            ->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')
+            ->withHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8')
+            ->withHeader('Accept-Language', 'en-US,en;q=0.9')
+            ->withHeader('Accept-Encoding', 'gzip, deflate, br')
+            ->withHeader('Connection', 'keep-alive')
+            ->withHeader('Upgrade-Insecure-Requests', '1')
+            ->withHeader('Sec-Fetch-Dest', 'document')
+            ->withHeader('Sec-Fetch-Mode', 'navigate')
+            ->withHeader('Sec-Fetch-Site', 'none')
+            ->withHeader('Sec-Fetch-User', '?1')
+            ->withHeader('Cache-Control', 'max-age=0');
+
         $response = $this->client->sendRequest($request);
 
         if ($response->getStatusCode() !== 200) {
@@ -32,13 +47,14 @@ class Snapshot
         }
 
         $filename = $this->getFilename($url, $timestamp);
-        $this->saveSnapshot($filename, $response);
+        $this->saveSnapshot($filename, $request, $response);
 
         return [
             'url' => $url,
             'filename' => $filename,
             'status' => $response->getStatusCode(),
-            'headers' => $response->getHeaders(),
+            'request_headers' => $request->getHeaders(),
+            'response_headers' => $response->getHeaders(),
         ];
     }
 
@@ -69,7 +85,7 @@ class Snapshot
     /**
      * Save snapshot to file
      */
-    private function saveSnapshot(string $filename, ResponseInterface $response): void
+    private function saveSnapshot(string $filename, Request $request, ResponseInterface $response): void
     {
         $headers = $response->getHeaders();
         $body = (string) $response->getBody();
@@ -98,8 +114,16 @@ class Snapshot
 
         // Save headers to JSON file
         $headersData = [
-            'headers' => $headers,
-            'body_file' => basename($filename, '.json') . '.' . $extension
+            'request' => [
+                'method' => $request->getMethod(),
+                'url' => (string) $request->getUri(),
+                'headers' => $request->getHeaders(),
+            ],
+            'response' => [
+                'status' => $response->getStatusCode(),
+                'headers' => $headers,
+                'body_file' => basename($filename, '.json') . '.' . $extension
+            ]
         ];
         file_put_contents($filename, json_encode($headersData, JSON_PRETTY_PRINT));
 
