@@ -125,6 +125,7 @@ class Snapshot
                 'body_file' => basename($filename, '.json') . '.' . $extension
             ]
         ];
+
         file_put_contents($filename, json_encode($headersData, JSON_PRETTY_PRINT));
 
         // Save body to separate file

@@ -34,7 +34,7 @@ class Command
 
         // Add snapshot command
         $this->router->add('snapshot <url>...', function (array $args) : void {
-            $timestamp = date('Y-m-d_H-i-s');
+            $timestamp = date('Y-m-d_H-i');
             $urls = $args['url'];
 
             $results = $this->snapshot->takeSnapshots($urls, $timestamp);
