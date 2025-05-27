@@ -6,7 +6,6 @@ namespace Oct8pus\Snapshot;
 
 use DiDom\Document;
 use DiDom\Query;
-use Exception;
 use RuntimeException;
 
 class Sitemap extends Helper
@@ -28,7 +27,7 @@ class Sitemap extends Helper
     public function analyze() : self
     {
         if (!str_ends_with($this->url, '.xml')) {
-            throw new Exception('xml');
+            throw new RuntimeException('sitemap must have xml extension');
         }
 
         $response = $this->download($this->createRequest($this->url));
@@ -112,15 +111,6 @@ class Sitemap extends Helper
             }
         }
 
-        // sort sitemap by date
-        usort($links, static function (array $a, array $b) {
-            if (isset($a['lastmod'], $b['lastmod'])) {
-                return -($a['lastmod'] - $b['lastmod']);
-            }
-
-            return 0;
-        });
-
         $this->links = $links;
         return $this;
     }
@@ -133,7 +123,18 @@ class Sitemap extends Helper
         $count = count($this->links);
         echo("sitemap ({$count})\n");
 
-        foreach ($this->links as $link) {
+        $links = $this->links;
+
+        // sort sitemap by date
+        usort($links, static function (array $a, array $b) {
+            if (isset($a['lastmod'], $b['lastmod'])) {
+                return -($a['lastmod'] - $b['lastmod']);
+            }
+
+            return 0;
+        });
+
+        foreach ($links as $link) {
             $lastmod = $link['lastmod'] ?? '';
 
             if (!empty($lastmod)) {
