@@ -11,14 +11,14 @@ $snapshot = new Snapshot(__DIR__ . '/snapshots');
 
 $router = new Router();
 
-$router->add('[--help | -h]', function () use ($router) : void {
+$router->add('[--help | -h]', static function () use ($router) : void {
     echo "Usage:\n";
     foreach ($router->getRoutes() as $route) {
         echo "  {$route}\n";
     }
 });
 
-$router->add('snapshot <url>...', function (array $args) use ($snapshot) : void {
+$router->add('snapshot <url>...', static function (array $args) use ($snapshot) : void {
     $timestamp = date('Y-m-d_H-i');
     $urls = $args['url'];
 
