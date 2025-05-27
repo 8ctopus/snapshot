@@ -106,16 +106,7 @@ class Snapshot
         $headers = $response->getHeaders();
         $body = (string) $response->getBody();
 
-        $contentEncoding = $response->getHeaderLine('content-encoding');
-        $transferEncoding = $response->getHeaderLine('transfer-encoding');
-
-        if ($contentEncoding) {
-            $body = $this->decompressBody($body, $contentEncoding);
-        } elseif ($transferEncoding && strpos($transferEncoding, 'gzip') !== false) {
-            $body = \gzdecode($body);
-        } elseif (substr($body, 0, 2) === "\x1f\x8b") { // gzip magic number
-            $body = \gzdecode($body);
-        }
+        $body = $this->decompressResponse($body, $response);
 
         $contentType = $response->getHeaderLine('content-type') ?: 'text/plain';
         $extension = $this->getFileExtension($contentType);
@@ -140,6 +131,34 @@ class Snapshot
 
         $bodyFilename = dirname($filename) . '/' . basename($filename, '.json') . '.' . $extension;
         file_put_contents($bodyFilename, $body);
+    }
+
+    /**
+     * Decompress response body
+     *
+     * @param string            $body     The body to decompress
+     * @param ResponseInterface $response The response object
+     *
+     * @return string The decompressed body
+     */
+    private function decompressResponse(string $body, ResponseInterface $response): string
+    {
+        $contentEncoding = $response->getHeaderLine('content-encoding');
+        if ($contentEncoding) {
+            return $this->decompressBody($body, $contentEncoding);
+        }
+
+        $transferEncoding = $response->getHeaderLine('transfer-encoding');
+        if ($transferEncoding && strpos($transferEncoding, 'gzip') !== false) {
+            return \gzdecode($body);
+        }
+
+        // check for gzip magic number
+        if (substr($body, 0, 2) === "\x1f\x8b") {
+            return \gzdecode($body);
+        }
+
+        return $body;
     }
 
     /**
