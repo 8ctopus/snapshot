@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Oct8pus\Snapshot;
 
+use Exception;
 use HttpSoft\Message\Request;
 use Nimbly\Shuttle\Shuttle;
 use Psr\Http\Message\ResponseInterface;
@@ -29,7 +30,7 @@ class Snapshot
      *
      * @return array<int, array{url: string, filename?: string, status?: int, request_headers?: array, response_headers?: array, error?: string}>
      */
-    public function takeSnapshots(array $urls, string $timestamp): array
+    public function takeSnapshots(array $urls, string $timestamp) : array
     {
         $results = [];
         $this->indices = [];
@@ -37,7 +38,7 @@ class Snapshot
         foreach ($urls as $url) {
             try {
                 $results[] = $this->takeSnapshot($url, $timestamp);
-            } catch (\Exception $e) {
+            } catch (Exception $e) {
                 $results[] = [
                     'url' => $url,
                     'error' => $e->getMessage(),
@@ -54,11 +55,11 @@ class Snapshot
      * @param string $url       the url to snapshot
      * @param string $timestamp the timestamp for the snapshot
      *
-     * @throws RuntimeException if the request fails
-     *
      * @return array{url: string, filename: string, status: int, request_headers: array, response_headers: array}
+     *
+     * @throws RuntimeException if the request fails
      */
-    private function takeSnapshot(string $url, string $timestamp): array
+    private function takeSnapshot(string $url, string $timestamp) : array
     {
         $request = new Request('GET', $url);
 
@@ -96,11 +97,11 @@ class Snapshot
     /**
      * Save snapshot to file
      *
-     * @param string   $filename The filename to save to
-     * @param Request  $request  The request object
+     * @param string            $filename The filename to save to
+     * @param Request           $request  The request object
      * @param ResponseInterface $response The response object
      */
-    private function saveSnapshot(string $filename, Request $request, ResponseInterface $response): void
+    private function saveSnapshot(string $filename, Request $request, ResponseInterface $response) : void
     {
         $headers = $response->getHeaders();
         $body = (string) $response->getBody();
@@ -140,7 +141,7 @@ class Snapshot
      *
      * @return string The decompressed body
      */
-    private function decompressResponse(string $body, ResponseInterface $response): string
+    private function decompressResponse(string $body, ResponseInterface $response) : string
     {
         $contentEncoding = $response->getHeaderLine('content-encoding');
         if ($contentEncoding) {
@@ -168,7 +169,7 @@ class Snapshot
      *
      * @return string The generated filename
      */
-    private function getFilename(string $url, string $timestamp): string
+    private function getFilename(string $url, string $timestamp) : string
     {
         $parsedUrl = parse_url($url);
 
@@ -181,7 +182,7 @@ class Snapshot
         }
 
         $index = str_pad((string) $this->indices[$key], 2, '0', STR_PAD_LEFT);
-        $this->indices[$key]++;
+        ++$this->indices[$key];
 
         return "{$this->outputDir}/{$domain}/{$timestamp}/{$index}-{$path}.json";
     }
@@ -193,7 +194,7 @@ class Snapshot
      *
      * @return string The extracted path name
      */
-    private function getPathName(string $path): string
+    private function getPathName(string $path) : string
     {
         $path = trim($path, '/');
 
@@ -211,7 +212,7 @@ class Snapshot
      *
      * @return string The file extension
      */
-    private function getFileExtension(string $contentType): string
+    private function getFileExtension(string $contentType) : string
     {
         $contentType = strtolower($contentType);
 
@@ -242,11 +243,11 @@ class Snapshot
      * @param string $body            The body to decompress
      * @param string $contentEncoding The content encoding to use
      *
-     * @throws RuntimeException If the content encoding is not supported
-     *
      * @return string The decompressed body
+     *
+     * @throws RuntimeException If the content encoding is not supported
      */
-    private function decompressBody(string $body, string $contentEncoding): string
+    private function decompressBody(string $body, string $contentEncoding) : string
     {
         $contentEncoding = strtolower($contentEncoding);
         $encodings = array_map('trim', explode(',', $contentEncoding));
