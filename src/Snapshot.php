@@ -120,10 +120,10 @@ class Snapshot extends Helper
     /**
      * Generate filename
      *
-     * @param string $url       The URL to snapshot
-     * @param string $timestamp The timestamp for the snapshot
+     * @param string $url
+     * @param string $timestamp
      *
-     * @return string The generated filename
+     * @return string
      */
     protected function getFilename(string $url, string $timestamp) : string
     {
