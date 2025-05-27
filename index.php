@@ -4,27 +4,23 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+use Clue\Commander\Router;
 use Oct8pus\Snapshot\Snapshot;
 
-$outputDir = __DIR__ . '/snapshots';
-$snapshot = new Snapshot($outputDir);
+$snapshot = new Snapshot(__DIR__ . '/snapshots');
 
-// if no arguments provided, show help
-if (count($argv) <= 1) {
+$router = new Router();
+
+$router->add('[--help | -h]', function () use ($router) : void {
     echo "Usage:\n";
-    echo "  php index.php snapshot <url>...\n";
-    exit(0);
-}
-
-// handle snapshot command
-if ($argv[1] === 'snapshot') {
-    if (count($argv) <= 2) {
-        echo "Error: No URLs provided\n";
-        exit(1);
+    foreach ($router->getRoutes() as $route) {
+        echo "  {$route}\n";
     }
+});
 
+$router->add('snapshot <url>...', function (array $args) use ($snapshot) : void {
     $timestamp = date('Y-m-d_H-i');
-    $urls = array_slice($argv, 2);
+    $urls = $args['url'];
 
     $results = $snapshot->takeSnapshots($urls, $timestamp);
 
@@ -36,12 +32,6 @@ if ($argv[1] === 'snapshot') {
 
         echo "Error for {$result['url']}: {$result['error']}\n";
     }
+});
 
-    exit(0);
-}
-
-// unknown command
-echo "Error: Unknown command\n";
-echo "Use --help to see available commands.\n";
-exit(1);
-
+$router->handleArgv($argv);
