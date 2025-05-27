@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Oct8pus\Snapshot;
 
 use Exception;
-use HttpSoft\Message\Request;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;

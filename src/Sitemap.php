@@ -11,31 +11,31 @@ use RuntimeException;
 
 class Sitemap extends Helper
 {
+    private readonly string $url;
     private readonly array $links;
 
-    public function __construct(string $outputDir)
+    public function __construct(string $url, string $outputDir)
     {
+        $this->url = $url;
         parent::__construct($outputDir);
     }
 
     /**
-     * Extract sitemap links
+     * Analyze sitemap
      *
-     * @param string $url
-     *
-     * @return array
+     * @return self
      */
-    public function links(string $url) : array
+    public function analyze() : self
     {
-        if (!str_ends_with($url, '.xml')) {
+        if (!str_ends_with($this->url, '.xml')) {
             throw new Exception('xml');
         }
 
-        $response = $this->download($this->createRequest($url));
+        $response = $this->download($this->createRequest($this->url));
         $status = $response->getStatusCode();
 
         if ($status !== 200) {
-            throw new RuntimeException("{$url} - {$status}");
+            throw new RuntimeException("{$this->url} - {$status}");
         }
 
         $body = $this->decompressResponse($response);
@@ -52,7 +52,7 @@ class Sitemap extends Helper
 
         if (!count($elements)) {
             // file itself is sitemap
-            $urls[] = $url;
+            $urls[] = $this->url;
         } else {
             foreach ($elements as $element) {
                 // list children sitemaps
@@ -122,13 +122,13 @@ class Sitemap extends Helper
         });
 
         $this->links = $links;
-        return $links;
+        return $this;
     }
 
     /**
      * Show sitemap links
      */
-    public function showLinks() : void
+    public function show() : self
     {
         $count = count($this->links);
         echo("sitemap ({$count})\n");
@@ -144,5 +144,12 @@ class Sitemap extends Helper
 
             echo("{$lastmod}  {$link['loc']}\n");
         }
+
+        return $this;
+    }
+
+    public function links() : array
+    {
+        return $this->links;
     }
 }
