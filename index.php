@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Clue\Commander\Router;
+use Oct8pus\Snapshot\Sitemap;
 use Oct8pus\Snapshot\Snapshot;
 
 $snapshot = new Snapshot(__DIR__ . '/snapshots');
@@ -32,6 +33,11 @@ $router->add('snapshot <url>...', static function (array $args) use ($snapshot) 
 
         echo "{$result['error']} - {$result['url']} \n";
     }
+});
+
+$router->add('sitemap <url>', static function (array $args) : void {
+    (new Sitemap(''))
+        ->run($args['url']);
 });
 
 $router->handleArgv($argv);
