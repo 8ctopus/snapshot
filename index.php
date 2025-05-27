@@ -44,9 +44,9 @@ $router->add('snapshot from sitemap <url>', static function (array $args) use ($
     }
 });
 
-$router->add('snapshot <url>...', static function (array $args) use ($snapshot) : void {
+$router->add('snapshot <urls>...', static function (array $args) use ($snapshot) : void {
     $timestamp = date('Y-m-d_H-i');
-    $urls = $args['url'];
+    $urls = $args['urls'];
 
     $results = $snapshot->takeSnapshots($urls, $timestamp);
 
