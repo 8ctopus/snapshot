@@ -67,6 +67,7 @@ $router->add('clear snapshots', static function () use ($snapshot) : void {
 
 $router->add('extract seo', static function () use ($output, $timestamp) : void {
     $seoData = [];
+    $firstFilePath = null;
 
     // find all html files in current snapshot directory
     $iterator = new RecursiveIteratorIterator(
@@ -87,6 +88,11 @@ $router->add('extract seo', static function () use ($output, $timestamp) : void 
         $document = new DiDom\Document($html);
         $filePath = $file->getPathname();
 
+        // save the first file path for directory
+        if ($firstFilePath === null) {
+            $firstFilePath = $filePath;
+        }
+
         $title = $document->find('title')[0]?->text() ?? '';
         $description = $document->find('meta[name="description"]')[0]?->getAttribute('content') ?? '';
         $robots = $document->find('meta[name="robots"]')[0]?->getAttribute('content') ?? '';
@@ -105,8 +111,8 @@ $router->add('extract seo', static function () use ($output, $timestamp) : void 
         return;
     }
 
-    // get the directory of the first HTML file (they should all be in the same directory)
-    $dir = dirname($seoData[0]['url']);
+    // use the first file's directory for the seo.txt file
+    $dir = dirname($firstFilePath);
     $seoFile = "{$dir}/seo.txt";
 
     $content = '';
