@@ -14,6 +14,7 @@ class Snapshot
 {
     private Shuttle $client;
     private string $outputDir;
+    private array $indices = [];
 
     public function __construct(string $outputDir)
     {
@@ -77,6 +78,7 @@ class Snapshot
     public function takeSnapshots(array $urls, string $timestamp): array
     {
         $results = [];
+        $this->indices = [];
 
         foreach ($urls as $url) {
             try {
@@ -150,30 +152,51 @@ class Snapshot
      */
     private function getFilename(string $url, string $timestamp): string
     {
-        $urlHash = md5($url);
-        $domain = $this->extractDomain($url);
-
-        return "{$this->outputDir}/{$domain}/{$timestamp}/{$urlHash}.json";
-    }
-
-    /**
-     * Extract domain from URL
-     *
-     * @param string $url The URL to extract domain from
-     *
-     * @throws InvalidArgumentException If the URL is invalid
-     *
-     * @return string The extracted domain
-     */
-    private function extractDomain(string $url): string
-    {
         $parsedUrl = parse_url($url);
         if (!isset($parsedUrl['host'])) {
             throw new InvalidArgumentException("Invalid URL: {$url}");
         }
 
-        $domain = preg_replace('/^www\./', '', $parsedUrl['host']);
+        $domain = $this->extractDomain($parsedUrl['host']);
+        $path = $this->getPathName($parsedUrl['path'] ?? '/');
+        $key = "{$domain}/{$timestamp}";
+
+        if (!isset($this->indices[$key])) {
+            $this->indices[$key] = 1;
+        }
+
+        $index = str_pad((string) $this->indices[$key], 2, '0', STR_PAD_LEFT);
+        $this->indices[$key]++;
+
+        return "{$this->outputDir}/{$domain}/{$timestamp}/{$index}-{$path}.json";
+    }
+
+    /**
+     * Extract domain from URL
+     *
+     * @param string $host The host to extract domain from
+     *
+     * @throws InvalidArgumentException If the host is invalid
+     *
+     * @return string The extracted domain
+     */
+    private function extractDomain(string $host): string
+    {
+        $domain = preg_replace('/^www\./', '', $host);
         return str_replace('.', '_', $domain);
+    }
+
+    /**
+     * Get path name from URL path
+     *
+     * @param string $path The path to extract name from
+     *
+     * @return string The extracted path name
+     */
+    private function getPathName(string $path): string
+    {
+        $path = trim($path, '/');
+        return $path === '' ? 'index' : $path;
     }
 
     /**
