@@ -85,14 +85,15 @@ $router->add('extract seo', static function () use ($output, $timestamp) : void 
         }
 
         $document = new DiDom\Document($html);
-        $url = $file->getPathname();
+        $filePath = $file->getPathname();
 
         $title = $document->find('title')[0]?->text() ?? '';
         $description = $document->find('meta[name="description"]')[0]?->getAttribute('content') ?? '';
         $robots = $document->find('meta[name="robots"]')[0]?->getAttribute('content') ?? '';
+        $canonical = $document->find('link[rel="canonical"]')[0]?->getAttribute('href') ?? '';
 
         $seoData[] = [
-            'url' => $url,
+            'url' => $canonical ?: $filePath,
             'title' => $title,
             'description' => $description,
             'robots' => $robots,
