@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Oct8pus\Snapshot;
 
 use HttpSoft\Message\Request;
-use InvalidArgumentException;
 use Nimbly\Shuttle\Shuttle;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
@@ -172,11 +171,8 @@ class Snapshot
     private function getFilename(string $url, string $timestamp): string
     {
         $parsedUrl = parse_url($url);
-        if (!isset($parsedUrl['host'])) {
-            throw new InvalidArgumentException("Invalid URL: {$url}");
-        }
 
-        $domain = $this->extractDomain($parsedUrl['host']);
+        $domain = $parsedUrl['host'];
         $path = $this->getPathName($parsedUrl['path'] ?? '/');
         $key = "{$domain}/{$timestamp}";
 
@@ -188,21 +184,6 @@ class Snapshot
         $this->indices[$key]++;
 
         return "{$this->outputDir}/{$domain}/{$timestamp}/{$index}-{$path}.json";
-    }
-
-    /**
-     * Extract domain from URL
-     *
-     * @param string $host The host to extract domain from
-     *
-     * @throws InvalidArgumentException If the host is invalid
-     *
-     * @return string The extracted domain
-     */
-    private function extractDomain(string $host): string
-    {
-        $domain = preg_replace('/^www\./', '', $host);
-        return str_replace('.', '_', $domain);
     }
 
     /**
