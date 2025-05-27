@@ -24,10 +24,10 @@ class Snapshot
     /**
      * Take a snapshot of a single URL
      *
-     * @param string $url       The URL to snapshot
-     * @param string $timestamp The timestamp for the snapshot
+     * @param string $url       the url to snapshot
+     * @param string $timestamp the timestamp for the snapshot
      *
-     * @throws RuntimeException If the request fails
+     * @throws RuntimeException if the request fails
      *
      * @return array{url: string, filename: string, status: int, request_headers: array, response_headers: array}
      */
@@ -35,7 +35,7 @@ class Snapshot
     {
         $request = new Request('GET', $url);
 
-        // Add browser-like headers
+        // add browser-like headers
         $request = $request
             ->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')
             ->withHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8')
@@ -70,8 +70,8 @@ class Snapshot
     /**
      * Take snapshots of multiple URLs
      *
-     * @param string[] $urls      The URLs to snapshot
-     * @param string   $timestamp The timestamp for the snapshots
+     * @param string[] $urls      the urls to snapshot
+     * @param string   $timestamp the timestamp for the snapshots
      *
      * @return array<int, array{url: string, filename?: string, status?: int, request_headers?: array, response_headers?: array, error?: string}>
      */
@@ -105,29 +105,29 @@ class Snapshot
         $headers = $response->getHeaders();
         $body = (string) $response->getBody();
 
-        // Check for compression in various headers
+        // check for compression in various headers
         $contentEncoding = $headers['content-encoding'][0] ?? null;
         $transferEncoding = $headers['transfer-encoding'][0] ?? null;
 
-        // Handle compression
+        // handle compression
         if ($contentEncoding) {
             $body = $this->decompressBody($body, $contentEncoding);
         } elseif ($transferEncoding && strpos($transferEncoding, 'gzip') !== false) {
             $body = \gzdecode($body);
-        } elseif (substr($body, 0, 2) === "\x1f\x8b") { // Check for gzip magic number
+        } elseif (substr($body, 0, 2) === "\x1f\x8b") { // check for gzip magic number
             $body = \gzdecode($body);
         }
 
-        // Get content type from headers
+        // get content type from headers
         $contentType = $headers['content-type'][0] ?? 'text/plain';
         $extension = $this->getFileExtension($contentType);
 
-        // Create directory if it doesn't exist
+        // create directory if it doesn't exist
         if (!is_dir(dirname($filename))) {
             mkdir(dirname($filename), 0777, true);
         }
 
-        // Save headers to JSON file
+        // save headers to json file
         $headersData = [
             'request' => [
                 'method' => $request->getMethod(),
@@ -142,7 +142,7 @@ class Snapshot
         ];
         file_put_contents($filename, json_encode($headersData, JSON_PRETTY_PRINT));
 
-        // Save body to separate file
+        // save body to separate file
         $bodyFilename = dirname($filename) . '/' . basename($filename, '.json') . '.' . $extension;
         file_put_contents($bodyFilename, $body);
     }
@@ -179,10 +179,10 @@ class Snapshot
             throw new InvalidArgumentException("Invalid URL: {$url}");
         }
 
-        // Remove www. prefix if present
+        // remove www. prefix if present
         $domain = preg_replace('/^www\./', '', $parsedUrl['host']);
 
-        // Replace dots with underscores to avoid filesystem issues
+        // replace dots with underscores to avoid filesystem issues
         return str_replace('.', '_', $domain);
     }
 
@@ -221,7 +221,7 @@ class Snapshot
             return 'js';
         }
 
-        // Default to txt if content type is unknown
+        // default to txt if content type is unknown
         return 'txt';
     }
 
@@ -239,10 +239,10 @@ class Snapshot
     {
         $contentEncoding = strtolower($contentEncoding);
 
-        // Handle multiple encodings (e.g., "gzip, deflate")
+        // handle multiple encodings (e.g., "gzip, deflate")
         $encodings = array_map('trim', explode(',', $contentEncoding));
 
-        // Apply decompression in reverse order
+        // apply decompression in reverse order
         foreach (array_reverse($encodings) as $encoding) {
             switch ($encoding) {
                 case 'gzip':
