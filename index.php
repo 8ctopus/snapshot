@@ -36,8 +36,10 @@ $router->add('snapshot <url>...', static function (array $args) use ($snapshot) 
 });
 
 $router->add('sitemap <url>', static function (array $args) : void {
-    (new Sitemap(''))
-        ->run($args['url']);
+    $sitemap = new Sitemap('');
+
+    $links = $sitemap->links($args['url']);
+    $sitemap->showLinks($links);
 });
 
 $router->handleArgv($argv);

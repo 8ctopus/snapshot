@@ -17,13 +17,13 @@ class Sitemap extends Helper
     }
 
     /**
-     * Run
+     * Extract sitemap links
      *
-     * @param  string $url
+     * @param string $url
      *
-     * @return void
+     * @return array
      */
-    public function run(string $url) : void
+    public function links(string $url) : array
     {
         if (!str_ends_with($url, '.xml')) {
             throw new Exception('xml');
@@ -37,22 +37,8 @@ class Sitemap extends Helper
         }
 
         $body = $this->decompressResponse($response);
-        $links = self::extractLinks($url, $body);
 
-        self::showLinks($links);
-    }
-
-    /**
-     * Extract sitemap links
-     *
-     * @param string $url  sitemap link
-     * @param string $page sitemap source code
-     *
-     * @return array
-     */
-    public function extractLinks(string $url, string $page) : array
-    {
-        $document = new Document($page, false, 'UTF-8', Document::TYPE_XML);
+        $document = new Document($body, false, 'UTF-8', Document::TYPE_XML);
 
         // add namespace
         $document->registerNamespace('s', 'http://www.sitemaps.org/schemas/sitemap/0.9');
