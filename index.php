@@ -75,17 +75,23 @@ $router->add('exit', static function () : void {
     exit(0);
 });
 
+$stdin = fopen('php://stdin', 'r');
+
+if ($stdin === false) {
+    throw new Exception('fopen');
+}
+
+$input = $argv;
+
 while (true) {
-    echo "\nEnter command (or 'exit' to quit): ";
-    $input = trim(fgets(STDIN));
+    $router->handleArgv($input);
 
-    if (empty($input)) {
-        continue;
+    echo "\n> ";
+    $input = trim(fgets($stdin));
+
+    if (in_array($input, ['', 'exit', 'quit', 'q'])) {
+        break;
     }
 
-    try {
-        $router->handleArgv(explode(' ', $input));
-    } catch (Exception $e) {
-        echo "Error: {$e->getMessage()}\n";
-    }
+    $input = explode(' ', "dummy {$input}");
 }
