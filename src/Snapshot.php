@@ -60,8 +60,10 @@ class Snapshot extends Helper
         $request = $this->createRequest($url);
         $response = $this->download($request);
 
-        if ($response->getStatusCode() !== 200) {
-            throw new RuntimeException("Failed to fetch {$url}: HTTP {$response->getStatusCode()}");
+        $status = $response->getStatusCode();
+
+        if ($status !== 200) {
+            throw new RuntimeException("{$url} - {$status}");
         }
 
         $filename = $this->getFilename($url, $timestamp);
@@ -70,7 +72,7 @@ class Snapshot extends Helper
         return [
             'url' => $url,
             'filename' => $filename,
-            'status' => $response->getStatusCode(),
+            'status' => $status,
             'request_headers' => $request->getHeaders(),
             'response_headers' => $response->getHeaders(),
         ];

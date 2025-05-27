@@ -30,9 +30,10 @@ class Sitemap extends Helper
         }
 
         $response = $this->download($this->createRequest($url));
+        $status = $response->getStatusCode();
 
-        if ($response->getStatusCode() !== 200) {
-            throw new RuntimeException("Failed to fetch {$url}: HTTP {$response->getStatusCode()}");
+        if ($status !== 200) {
+            throw new RuntimeException("{$url} - {$status}");
         }
 
         $body = $this->decompressResponse($response);
