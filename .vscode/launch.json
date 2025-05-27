@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "php listen CLI",
+      "type": "php",
+      "port": 9000,
+      "stopOnEntry": false,
+      "request": "launch",
+      "ignore": [
+        // files to ignore all exceptions from
+      ],
+      "ignoreExceptions": [
+        "Symfony\\Component\\Console\\Exception\\RuntimeException",
+      ]
+    }
+  ]
+}
