@@ -147,40 +147,12 @@ class Snapshot extends Helper
      *
      * @return void
      */
-    public function clearSnapshots() : void
+    public function clear() : void
     {
         if (!is_dir($this->outputDir)) {
             return;
         }
 
         $this->removeDirectory($this->outputDir);
-    }
-
-    /**
-     * Remove directory recursively
-     *
-     * @param string $dir The directory to remove
-     *
-     * @return void
-     */
-    private function removeDirectory(string $dir) : void
-    {
-        if (!is_dir($dir)) {
-            return;
-        }
-
-        $files = array_diff(scandir($dir), ['.', '..']);
-
-        foreach ($files as $file) {
-            $path = "{$dir}/{$file}";
-
-            if (is_dir($path)) {
-                $this->removeDirectory($path);
-            } else {
-                unlink($path);
-            }
-        }
-
-        rmdir($dir);
     }
 }

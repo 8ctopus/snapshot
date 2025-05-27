@@ -42,7 +42,7 @@ $router->add('sitemap <url>', static function (array $args) : void {
 });
 
 $router->add('clear', static function () use ($snapshot) : void {
-    $snapshot->clearSnapshots();
+    $snapshot->clear();
     echo "All snapshots cleared\n";
 });
 
