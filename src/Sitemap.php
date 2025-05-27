@@ -180,6 +180,6 @@ class Sitemap extends Helper
 
     public function links() : array
     {
-        return $this->links;
+        return array_column($this->links, 'loc');
     }
 }

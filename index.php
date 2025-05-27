@@ -25,13 +25,7 @@ $router->add('snapshot from sitemap <url>', static function (array $args) use ($
     $sitemap = new Sitemap($args['url'], $output, $timestamp);
     $sitemap->analyze();
 
-    $links = $sitemap->links();
-    $urls = array_column($links, 'loc');
-
-    if (empty($urls)) {
-        echo "No URLs found in sitemap\n";
-        return;
-    }
+    $urls = $sitemap->links();
 
     $results = $snapshot->takeSnapshots($urls);
 
