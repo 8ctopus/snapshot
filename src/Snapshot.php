@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Oct8pus\Snapshot;
 
 use HttpSoft\Message\Request;
+use InvalidArgumentException;
 use Nimbly\Shuttle\Shuttle;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
@@ -112,9 +113,9 @@ class Snapshot
         if ($contentEncoding) {
             $body = $this->decompressBody($body, $contentEncoding);
         } elseif ($transferEncoding && strpos($transferEncoding, 'gzip') !== false) {
-            $body = gzdecode($body);
+            $body = \gzdecode($body);
         } elseif (substr($body, 0, 2) === "\x1f\x8b") { // Check for gzip magic number
-            $body = gzdecode($body);
+            $body = \gzdecode($body);
         }
 
         // Get content type from headers
@@ -167,7 +168,7 @@ class Snapshot
      *
      * @param string $url The URL to extract domain from
      *
-     * @throws \InvalidArgumentException If the URL is invalid
+     * @throws InvalidArgumentException If the URL is invalid
      *
      * @return string The extracted domain
      */
@@ -175,7 +176,7 @@ class Snapshot
     {
         $parsedUrl = parse_url($url);
         if (!isset($parsedUrl['host'])) {
-            throw new \InvalidArgumentException("Invalid URL: {$url}");
+            throw new InvalidArgumentException("Invalid URL: {$url}");
         }
 
         // Remove www. prefix if present
@@ -245,16 +246,16 @@ class Snapshot
         foreach (array_reverse($encodings) as $encoding) {
             switch ($encoding) {
                 case 'gzip':
-                    $body = gzdecode($body);
+                    $body = \gzdecode($body);
                     break;
 
                 case 'deflate':
-                    $body = gzinflate($body);
+                    $body = \gzinflate($body);
                     break;
 
                 case 'br':
-                    if (function_exists('brotli_uncompress')) {
-                        $body = brotli_uncompress($body);
+                    if (function_exists('\brotli_uncompress')) {
+                        $body = \brotli_uncompress($body);
                     } else {
                         throw new RuntimeException('Brotli decompression is not available. Please install the brotli extension.');
                     }
