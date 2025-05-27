@@ -215,7 +215,11 @@ class Snapshot
     private function getPathName(string $path): string
     {
         $path = trim($path, '/');
-        return $path === '' ? 'index' : $path;
+        if ($path === '') {
+            return 'index';
+        }
+
+        return str_replace('/', '_', $path);
     }
 
     /**
