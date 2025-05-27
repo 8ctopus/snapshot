@@ -22,6 +22,33 @@ class Snapshot
     }
 
     /**
+     * Take snapshots of multiple URLs
+     *
+     * @param string[] $urls      the urls to snapshot
+     * @param string   $timestamp the timestamp for the snapshots
+     *
+     * @return array<int, array{url: string, filename?: string, status?: int, request_headers?: array, response_headers?: array, error?: string}>
+     */
+    public function takeSnapshots(array $urls, string $timestamp): array
+    {
+        $results = [];
+        $this->indices = [];
+
+        foreach ($urls as $url) {
+            try {
+                $results[] = $this->takeSnapshot($url, $timestamp);
+            } catch (\Exception $e) {
+                $results[] = [
+                    'url' => $url,
+                    'error' => $e->getMessage(),
+                ];
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * Take a snapshot of a single URL
      *
      * @param string $url       the url to snapshot
@@ -31,7 +58,7 @@ class Snapshot
      *
      * @return array{url: string, filename: string, status: int, request_headers: array, response_headers: array}
      */
-    public function takeSnapshot(string $url, string $timestamp): array
+    private function takeSnapshot(string $url, string $timestamp): array
     {
         $request = new Request('GET', $url);
 
@@ -64,33 +91,6 @@ class Snapshot
             'request_headers' => $request->getHeaders(),
             'response_headers' => $response->getHeaders(),
         ];
-    }
-
-    /**
-     * Take snapshots of multiple URLs
-     *
-     * @param string[] $urls      the urls to snapshot
-     * @param string   $timestamp the timestamp for the snapshots
-     *
-     * @return array<int, array{url: string, filename?: string, status?: int, request_headers?: array, response_headers?: array, error?: string}>
-     */
-    public function takeSnapshots(array $urls, string $timestamp): array
-    {
-        $results = [];
-        $this->indices = [];
-
-        foreach ($urls as $url) {
-            try {
-                $results[] = $this->takeSnapshot($url, $timestamp);
-            } catch (\Exception $e) {
-                $results[] = [
-                    'url' => $url,
-                    'error' => $e->getMessage(),
-                ];
-            }
-        }
-
-        return $results;
     }
 
     /**
@@ -196,6 +196,7 @@ class Snapshot
     private function getPathName(string $path): string
     {
         $path = trim($path, '/');
+
         if ($path === '') {
             return 'index';
         }
