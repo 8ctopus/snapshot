@@ -11,7 +11,6 @@ use RuntimeException;
 
 class Snapshot extends Helper
 {
-    private string $outputDir;
     private array $indices = [];
 
     public function __construct(string $outputDir)

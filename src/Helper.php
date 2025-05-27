@@ -12,7 +12,7 @@ use RuntimeException;
 
 class Helper
 {
-    private string $outputDir;
+    protected string $outputDir;
     private Shuttle $client;
 
     public function __construct(string $outputDir)
