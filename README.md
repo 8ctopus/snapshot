@@ -2,6 +2,8 @@
 
 A command-line tool for analyzing and archiving websites. It helps you discover, analyze, and save website content, including hidden pages and SEO information.
 
+_NOTE_: This is the result of a day of vibe coding in cursor, so it's experimental.
+
 ## Features
 
 - **Website Snapshot**: Download and save website pages locally
