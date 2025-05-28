@@ -187,7 +187,7 @@ $input = $argv;
 while (true) {
     $router->handleArgv($input);
 
-    echo "\n> ";
+    $logger->info("\n> ");
     $input = trim(fgets($stdin));
 
     if (in_array($input, ['', 'exit', 'quit', 'q'], true)) {
