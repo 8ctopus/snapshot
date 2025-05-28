@@ -101,7 +101,7 @@ class Router
                 return;
             }
 
-            if ($args['urls'][0] !== 'sitemap') {
+            if ($args['urls'][0] !== 'urls') {
                 $this->urls = $args['urls'];
             }
 
@@ -202,6 +202,7 @@ class Router
                 $robots = ($doindex ? 'index' : 'noindex') . ',' . ($dofollow ? 'follow' : 'nofollow');
 
                 $seo[] = [
+                    'url' => json_decode(file_get_contents(str_replace('.html', '.json', $file->getPathname())), true)['url'],
                     'title' => $title,
                     'description' => $description,
                     'robots' => $robots === 'index,follow' ? '' : $robots,
@@ -212,6 +213,7 @@ class Router
             $data = '';
 
             foreach ($seo as $row) {
+                $data .= "url: {$row['url']}\n";
                 $data .= "canonical: {$row['canonical']}\n";
                 $data .= "title: {$row['title']}\n";
                 $data .= "description: {$row['description']}\n";

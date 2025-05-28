@@ -56,7 +56,7 @@ class Snapshot extends Helper
 
         $filename = $this->getFilename($url, 'json');
 
-        $this->saveSnapshot($filename, $request, $response);
+        $this->saveSnapshot($url, $filename, $request, $response);
 
         return true;
     }
@@ -64,11 +64,12 @@ class Snapshot extends Helper
     /**
      * Save snapshot to file
      *
+     * @param string            $url
      * @param string            $filename
      * @param RequestInterface  $request
      * @param ResponseInterface $response
      */
-    private function saveSnapshot(string $filename, RequestInterface $request, ResponseInterface $response) : void
+    private function saveSnapshot(string $url, string $filename, RequestInterface $request, ResponseInterface $response) : void
     {
         $dir = dirname($filename);
 
@@ -81,6 +82,7 @@ class Snapshot extends Helper
         $contentFile = basename($filename, '.json') . '.' . $extension;
 
         $headers = [
+            'url' => $url,
             'request' => [
                 'method' => $request->getMethod(),
                 'url' => (string) $request->getUri(),
@@ -95,6 +97,8 @@ class Snapshot extends Helper
 
         file_put_contents($filename, json_encode($headers, JSON_PRETTY_PRINT));
 
-        file_put_contents("{$dir}/{$contentFile}", $this->decompressResponse($response));
+        $body = $this->decompressResponse($response);
+
+        file_put_contents("{$dir}/{$contentFile}", $body);
     }
 }
