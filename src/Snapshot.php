@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace Oct8pus\Snapshot;
 
-use Exception;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use RuntimeException;
+use Psr\Log\LoggerInterface;
 
 class Snapshot extends Helper
 {
-    public function __construct(string $outputDir)
+    public function __construct(LoggerInterface $logger, string $outputDir)
     {
-        parent::__construct($outputDir);
+        parent::__construct($logger, $outputDir);
     }
 
     /**
@@ -21,24 +20,19 @@ class Snapshot extends Helper
      *
      * @param string[] $urls
      *
-     * @return array<int, array{url: string, filename?: string, status?: int, request_headers?: array, response_headers?: array, error?: string}>
+     * @return int
      */
-    public function takeSnapshots(array $urls) : array
+    public function takeSnapshots(array $urls) : int
     {
-        $result = [];
+        $count = 0;
 
         foreach ($urls as $url) {
-            try {
-                $result[] = $this->takeSnapshot($url);
-            } catch (Exception $e) {
-                $result[] = [
-                    'url' => $url,
-                    'error' => $e->getMessage(),
-                ];
+            if ($this->takeSnapshot($url)) {
+                ++$count;
             }
         }
 
-        return $result;
+        return $count;
     }
 
     /**
@@ -46,11 +40,9 @@ class Snapshot extends Helper
      *
      * @param string $url
      *
-     * @return array{url: string, filename: string, status: int, request_headers: array, response_headers: array}
-     *
-     * @throws RuntimeException if the request fails
+     * @return bool
      */
-    private function takeSnapshot(string $url) : array
+    private function takeSnapshot(string $url) : bool
     {
         $request = $this->createRequest($url);
         $response = $this->download($request);
@@ -58,20 +50,15 @@ class Snapshot extends Helper
         $status = $response->getStatusCode();
 
         if ($status !== 200) {
-            throw new RuntimeException("{$url} - {$status}");
+            $this->logger->error("{$status} - {$url}");
+            return false;
         }
 
         $filename = $this->getFilename($url, 'json');
 
         $this->saveSnapshot($filename, $request, $response);
 
-        return [
-            'url' => $url,
-            'filename' => $filename,
-            'status' => $status,
-            'request_headers' => $request->getHeaders(),
-            'response_headers' => $response->getHeaders(),
-        ];
+        return true;
     }
 
     /**

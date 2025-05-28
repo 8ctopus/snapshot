@@ -8,22 +8,24 @@ use HttpSoft\Message\Request;
 use Nimbly\Shuttle\Shuttle;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 
 class Helper
 {
+    protected readonly LoggerInterface $logger;
     protected readonly string $outputDir;
 
     private readonly Shuttle $client;
     // REM private array $indices;
     private int $index;
 
-    public function __construct(string $outputDir)
+    public function __construct(LoggerInterface $logger, string $outputDir)
     {
+        $this->logger = $logger;
         $this->outputDir = rtrim($outputDir, '/');
 
         $this->client = new Shuttle();
-        // REM $this->indices = [];
         $this->index = 1;
     }
 
@@ -89,18 +91,6 @@ class Helper
         $index = str_pad((string) $this->index++, 2, '0', STR_PAD_LEFT);
 
         return "{$this->outputDir}/{$index}-{$path}.{$extension}";
-        /* FIX ME
-        $key = "{$domain}/{$this->timestamp}";
-
-        if (!isset($this->indices[$key])) {
-            $this->indices[$key] = 1;
-        }
-
-        $index = str_pad((string) $this->indices[$key], 2, '0', STR_PAD_LEFT);
-        ++$this->indices[$key];
-
-        return "{$this->outputDir}/{$index}-{$path}.{$extension}";
-        */
     }
 
     /**

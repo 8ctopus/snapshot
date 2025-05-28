@@ -28,7 +28,6 @@ class Router
     {
         $this->logger = $logger;
         $this->dir = $dir;
-
         $this->router = new CommanderRouter();
     }
 
@@ -47,8 +46,8 @@ class Router
             $timestamp = date('Y-m-d_H-i');
             $this->snapshotDir = "{$this->dir}/{$this->host}/{$timestamp}";
             $this->host = "https://{$this->host}";
-            $this->snapshot = new Snapshot($this->snapshotDir);
-            $this->sitemap = new Sitemap($this->snapshotDir, $this->host);
+            $this->snapshot = new Snapshot($this->logger, $this->snapshotDir);
+            $this->sitemap = new Sitemap($this->logger, $this->snapshotDir, $this->host);
         });
 
         $this->router->add('sitemap [<path>]', function (array $args) : void {
@@ -106,16 +105,7 @@ class Router
                 $this->urls = $args['urls'];
             }
 
-            $list = $this->snapshot->takeSnapshots($this->urls);
-
-            foreach ($list as $item) {
-                if (isset($item['error'])) {
-                    $this->logger->error("{$item['error']} - {$item['url']}");
-                    continue;
-                }
-            }
-
-            $count = count($list);
+            $count = $this->snapshot->takeSnapshots($this->urls);
 
             $this->logger->info("{$count} pages");
         });
