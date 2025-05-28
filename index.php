@@ -24,10 +24,10 @@ $stdout = (new Stream('php://stdout'))
 $logger = new Logger([$stdout]);
 
 // snapshots/host/2025-05-27_12-26
-$output = __DIR__ . '/snapshots';
+$dir = __DIR__ . '/snapshots';
 $host = null;
 $timestamp = date('Y-m-d_H-i');
-$snapshot = new Snapshot($output, $timestamp);
+$snapshot = new Snapshot($dir, $timestamp);
 
 $router = new Router();
 
@@ -44,8 +44,8 @@ $router->add('host <host>', static function ($args) use ($logger, $host) : void 
     $logger->info("Set host {$host}");
 });
 
-$router->add('snapshot from sitemap <url>', static function (array $args) use ($logger, $snapshot, $output, $timestamp) : void {
-    $sitemap = new Sitemap($args['url'], $output, $timestamp);
+$router->add('snapshot from sitemap <url>', static function (array $args) use ($logger, $snapshot, $dir, $timestamp) : void {
+    $sitemap = new Sitemap($args['url'], $dir, $timestamp);
     $sitemap->analyze();
 
     $urls = $sitemap->links();
@@ -77,8 +77,8 @@ $router->add('snapshot <urls>...', static function (array $args) use ($logger, $
     }
 });
 
-$router->add('sitemap <url>', static function (array $args) use ($logger, $output, $timestamp) : void {
-    (new Sitemap($args['url'], $output, $timestamp))
+$router->add('sitemap <url>', static function (array $args) use ($logger, $dir, $timestamp) : void {
+    (new Sitemap($args['url'], $dir, $timestamp))
         ->analyze()
         ->show(false);
 });
@@ -88,13 +88,13 @@ $router->add('clear snapshots', static function () use ($logger, $snapshot) : vo
     $logger->info("All snapshots cleared");
 });
 
-$router->add('extract seo', static function () use ($logger, $output, $timestamp) : void {
+$router->add('extract seo', static function () use ($logger, $dir, $timestamp) : void {
     $seoData = [];
     $firstFilePath = null;
 
     // find all html files in current snapshot directory
     $iterator = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($output)
+        new RecursiveDirectoryIterator($dir)
     );
 
     foreach ($iterator as $file) {
@@ -151,7 +151,7 @@ $router->add('extract seo', static function () use ($logger, $output, $timestamp
     $logger->info("SEO data saved to {$seoFile}");
 });
 
-$router->add('download robots <url>', static function (array $args) use ($output, $timestamp, $logger) : void {
+$router->add('download robots <url>', static function (array $args) use ($dir, $timestamp, $logger) : void {
     $url = $args['url'];
     if (!str_ends_with($url, 'robots.txt')) {
         $logger->info("URL must end with robots.txt");
@@ -172,7 +172,7 @@ $router->add('download robots <url>', static function (array $args) use ($output
     // extract domain from URL for directory structure
     $parsedUrl = parse_url($url);
     $domain = $parsedUrl['host'];
-    $dir = "{$output}/{$domain}/{$timestamp}";
+    $dir = "{$dir}/{$domain}/{$timestamp}";
 
     if (!is_dir($dir)) {
         $logger->info("No snapshot directory found for {$domain}");
