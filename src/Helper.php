@@ -30,7 +30,7 @@ class Helper
      * Remove directory recursively
      *
      * @param string $dir
-     * @param bool $removeRoot
+     * @param bool   $removeRoot
      *
      * @return void
      */
