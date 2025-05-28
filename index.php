@@ -9,10 +9,10 @@ use Clue\Commander\Router;
 use DiDom\Document;
 use HttpSoft\Message\Request;
 use Nimbly\Shuttle\Shuttle;
+use NunoMaduro\Collision\Provider as ExceptionHandler;
 use Oct8pus\Snapshot\Helper;
 use Oct8pus\Snapshot\Sitemap;
 use Oct8pus\Snapshot\Snapshot;
-use NunoMaduro\Collision\Provider as ExceptionHandler;
 
 require_once __DIR__ . '/vendor/autoload.php';
 
@@ -40,7 +40,7 @@ $urls = [];
 $router = new Router();
 
 $router->add('[--help | -h]', static function () use ($router, $logger) : void {
-    $logger->info("Usage:");
+    $logger->info('Usage:');
 
     foreach ($router->getRoutes() as $route) {
         $logger->info("  {$route}");
@@ -64,7 +64,7 @@ $router->add('host <host>', static function ($args) use ($logger, &$host, $dir, 
 
 $router->add('sitemap', static function () use ($logger, &$sitemap, &$urls) : void {
     if ($sitemap === null) {
-        $logger->info("Please set host first");
+        $logger->info('Please set host first');
         return;
     }
 
@@ -79,7 +79,7 @@ $router->add('sitemap', static function () use ($logger, &$sitemap, &$urls) : vo
 
 $router->add('robots', static function () use ($logger, &$host, &$snapshotDir) : void {
     if ($host === null) {
-        $logger->info("Please set host first");
+        $logger->info('Please set host first');
         return;
     }
 
@@ -108,7 +108,7 @@ $router->add('robots', static function () use ($logger, &$host, &$snapshotDir) :
 
 $router->add('snapshot <urls>...', static function (array $args) use ($logger, &$snapshot, &$urls) : void {
     if ($snapshot === null) {
-        $logger->info("Please set host first");
+        $logger->info('Please set host first');
         return;
     }
 
@@ -173,7 +173,7 @@ $router->add('clear', static function () use ($logger, $dir) : void {
     }
 
     Helper::removeDirectory($dir);
-    $logger->info("All snapshots cleared");
+    $logger->info('All snapshots cleared');
 });
 
 $stdin = fopen('php://stdin', 'r');

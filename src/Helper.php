@@ -27,6 +27,30 @@ class Helper
         $this->index = 1;
     }
 
+    /**
+     * Remove directory recursively
+     *
+     * @param string $dir
+     *
+     * @return void
+     */
+    public static function removeDirectory(string $dir) : void
+    {
+        if (!is_dir($dir)) {
+            return;
+        }
+
+        $files = array_diff(scandir($dir), ['.', '..']);
+
+        foreach ($files as $file) {
+            $path = "{$dir}/{$file}";
+
+            is_dir($path) ? self::removeDirectory($path) : unlink($path);
+        }
+
+        rmdir($dir);
+    }
+
     protected function createRequest(string $url) : RequestInterface
     {
         return (new Request('GET', $url))
@@ -65,7 +89,6 @@ class Helper
         $index = str_pad((string) $this->index++, 2, '0', STR_PAD_LEFT);
 
         return "{$this->outputDir}/{$index}-{$path}.{$extension}";
-
         /* FIX ME
         $key = "{$domain}/{$this->timestamp}";
 
@@ -164,29 +187,5 @@ class Helper
         }
 
         return $body;
-    }
-
-    /**
-     * Remove directory recursively
-     *
-     * @param string $dir
-     *
-     * @return void
-     */
-    public static function removeDirectory(string $dir) : void
-    {
-        if (!is_dir($dir)) {
-            return;
-        }
-
-        $files = array_diff(scandir($dir), ['.', '..']);
-
-        foreach ($files as $file) {
-            $path = "{$dir}/{$file}";
-
-            is_dir($path) ? self::removeDirectory($path) : unlink($path);
-        }
-
-        rmdir($dir);
     }
 }
