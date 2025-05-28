@@ -17,7 +17,7 @@
         "clue/commander": "^1.4",
         "imangazaliev/didom": "^2.0",
         "nimbly/shuttle": "^2.0",
-        "nunomaduro/collision": "^8.0",
+        "nunomaduro/collision": "^8.8",
         "httpsoft/http-message": "^1.1"
     },
     "require-dev": {

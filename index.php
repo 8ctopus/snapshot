@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/vendor/autoload.php';
-
 use Apix\Log\Format\Minimal;
 use Apix\Log\Logger;
 use Apix\Log\Logger\Stream;
@@ -14,6 +12,12 @@ use Nimbly\Shuttle\Shuttle;
 use Oct8pus\Snapshot\Helper;
 use Oct8pus\Snapshot\Sitemap;
 use Oct8pus\Snapshot\Snapshot;
+use NunoMaduro\Collision\Provider as ExceptionHandler;
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+(new ExceptionHandler())
+    ->register();
 
 $stdout = (new Stream('php://stdout'))
     // intercept logs that are >=
