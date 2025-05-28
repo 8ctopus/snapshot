@@ -15,16 +15,16 @@ A command-line tool for analyzing and archiving websites. It helps you discover,
 ```bash
 php index.php
 
-# set the target website
+# set target website
 host example.com
 
 # download robots.txt
 robots
 
-# analyze sitemap
+# download and analyze sitemap
 sitemap
 
-# take a snapshot of all pages
+# take a snapshot of all pages in sitemap
 snapshot urls
 
 # snapshot specific pages
@@ -36,7 +36,7 @@ discover hidden
 # snapshot hidden pages
 snapshot urls
 
-# extract SEO information
+# extract SEO information (see seo.txt in snapshot dir)
 extract seo
 
 # delete all snapshots
