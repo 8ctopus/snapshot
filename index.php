@@ -150,10 +150,12 @@ $router->add('extract seo', static function () use ($logger, &$snapshotDir) : vo
         $doindex = !str_contains($robots, 'noindex');
         $dofollow = !str_contains($robots, 'nofollow');
 
+        $robots = ($doindex ? 'index' : 'noindex') . ',' . ($dofollow ? 'follow' : 'nofollow');
+
         $seo[] = [
             'title' => $title,
             'description' => $description,
-            'robots' => ($doindex ? 'index' : 'noindex') . ',' . ($dofollow ? 'follow' : 'nofollow'),
+            'robots' => $robots === ',' ? '' : $robots,
             'canonical' => $canonical,
         ];
     }
@@ -161,10 +163,10 @@ $router->add('extract seo', static function () use ($logger, &$snapshotDir) : vo
     $data = '';
 
     foreach ($seo as $row) {
+        $data .= "canonical: {$row['canonical']}\n";
         $data .= "title: {$row['title']}\n";
         $data .= "description: {$row['description']}\n";
         $data .= "robots: {$row['robots']}\n";
-        $data .= "canonical: {$row['canonical']}\n";
         $data .= str_repeat('-', 80) . "\n";
     }
 
