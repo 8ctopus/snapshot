@@ -84,13 +84,10 @@ class Helper
      */
     protected function getFilename(string $url, string $extension) : string
     {
-        $parsedUrl = parse_url($url);
+        $path = parse_url($url, PHP_URL_PATH);
+        $path = $this->urlToPath($path);
 
-        $path = $this->getPathName($parsedUrl['path'] ?? '/');
-
-        $index = str_pad((string) $this->index++, 2, '0', STR_PAD_LEFT);
-
-        return "{$this->outputDir}/pages/{$index}-{$path}.{$extension}";
+        return "{$this->outputDir}/pages/{$path}.{$extension}";
     }
 
     /**
@@ -126,21 +123,21 @@ class Helper
     }
 
     /**
-     * Get path name from URL path
+     * Get path from url path
      *
-     * @param string $path The path to extract name from
+     * @param string $url
      *
-     * @return string The extracted path name
+     * @return string
      */
-    protected function getPathName(string $path) : string
+    protected function urlToPath(string $url) : string
     {
-        $path = trim($path, '/');
+        $url = trim($url, '/');
 
-        if ($path === '') {
+        if ($url === '') {
             return 'index';
         }
 
-        return str_replace('/', '_', $path);
+        return $url;
     }
 
     /**
