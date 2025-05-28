@@ -49,14 +49,14 @@ $router->add('[--help | -h]', static function () use ($router, $logger) : void {
 
 $router->add('host <host>', static function ($args) use ($logger, &$host, $dir, &$snapshotDir, &$snapshot, &$sitemap) : void {
     $host = $args['host'];
-    $logger->info("Set host {$host}");
+    //$logger->info("Set host {$host}");
 
     $timestamp = date('Y-m-d_H-i');
     $snapshotDir = "{$dir}/{$host}/{$timestamp}";
 
-    $logger->info("snapshot dir - {$snapshotDir}");
+    //$logger->info("snapshot dir - {$snapshotDir}");
 
-    $host = 'https://' . $host;
+    $host = "https://{$host}";
 
     $snapshot = new Snapshot($snapshotDir);
     $sitemap = new Sitemap($snapshotDir, $host);
@@ -141,9 +141,9 @@ $router->add('extract seo', static function () use ($logger, &$snapshotDir) : vo
         $document = new Document(file_get_contents($file->getPathname()));
 
         $title = $document->first('title')?->text() ?? 'N/A';
-        $description = $document->first('meta[name="description"]')?->getAttribute('content', 'N/A');
-        $robots = $document->first('meta[name="robots"]')?->getAttribute('content', 'N/A');
-        $canonical = $document->first('link[rel="canonical"]')?->getAttribute('href', 'N/A');
+        $description = $document->first('meta[name="description"]')?->getAttribute('content') ?? 'N/A';
+        $robots = $document->first('meta[name="robots"]')?->getAttribute('content') ?? 'N/A';
+        $canonical = $document->first('link[rel="canonical"]')?->getAttribute('href') ?? 'N/A';
 
         $seo[] = [
             'title' => $title,
