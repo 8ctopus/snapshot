@@ -106,23 +106,25 @@ $router->add('robots', static function () use ($logger, &$host, &$snapshotDir) :
     $logger->info($body);
 });
 
-$router->add('snapshot <urls>...', static function (array $args) use ($logger, &$snapshot) : void {
+$router->add('snapshot <urls>...', static function (array $args) use ($logger, &$snapshot, &$urls) : void {
     if ($snapshot === null) {
         $logger->info("Please set host first");
         return;
     }
 
-    $urls = $args['urls'];
+    if ($args['urls'][0] !== 'sitemap') {
+        $urls = $args['urls'];
+    }
 
     $results = $snapshot->takeSnapshots($urls);
 
     foreach ($results as $result) {
-        if (!isset($result['error'])) {
-            $logger->info("Snapshot taken - {$result['url']}");
+        if (isset($result['error'])) {
+            $logger->error("{$result['error']} - {$result['url']}");
             continue;
         }
 
-        $logger->error("{$result['error']} - {$result['url']}");
+        //$logger->info("Snapshot taken - {$result['url']}");
     }
 });
 
