@@ -147,10 +147,13 @@ $router->add('extract seo', static function () use ($logger, &$snapshotDir) : vo
         $robots = $document->first('meta[name="robots"]')?->getAttribute('content') ?? 'N/A';
         $canonical = $document->first('link[rel="canonical"]')?->getAttribute('href') ?? 'N/A';
 
+        $doindex = !str_contains($robots, 'noindex');
+        $dofollow = !str_contains($robots, 'nofollow');
+
         $seo[] = [
             'title' => $title,
             'description' => $description,
-            'robots' => $robots,
+            'robots' => ($doindex ? 'index' : 'noindex') . ',' . ($dofollow ? 'follow' : 'nofollow'),
             'canonical' => $canonical,
         ];
     }
