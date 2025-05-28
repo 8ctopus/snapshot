@@ -142,13 +142,13 @@ class Sitemap extends Helper
     public function show(bool $lastUpdated) : self
     {
         $count = count($this->links);
-        echo("sitemap ({$count})\n");
+        echo "sitemap ({$count})\n";
 
         $links = $this->links;
 
         if (!$lastUpdated) {
             foreach ($links as $link) {
-                echo("{$link['loc']}\n");
+                echo "{$link['loc']}\n";
             }
 
             return $this;
@@ -172,7 +172,7 @@ class Sitemap extends Helper
 
             $lastmod = str_pad($lastmod, 18, ' ', STR_PAD_RIGHT);
 
-            echo("{$lastmod} {$link['loc']}\n");
+            echo "{$lastmod} {$link['loc']}\n";
         }
 
         return $this;

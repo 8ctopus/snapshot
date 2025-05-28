@@ -42,6 +42,20 @@ class Snapshot extends Helper
     }
 
     /**
+     * Clear all snapshots
+     *
+     * @return void
+     */
+    public function clear() : void
+    {
+        if (!is_dir($this->outputDir)) {
+            return;
+        }
+
+        $this->removeDirectory($this->outputDir);
+    }
+
+    /**
      * Take a snapshot
      *
      * @param string $url
@@ -109,19 +123,5 @@ class Snapshot extends Helper
         file_put_contents($filename, json_encode($headers, JSON_PRETTY_PRINT));
 
         file_put_contents("{$dir}/{$contentFile}", $this->decompressResponse($response));
-    }
-
-    /**
-     * Clear all snapshots
-     *
-     * @return void
-     */
-    public function clear() : void
-    {
-        if (!is_dir($this->outputDir)) {
-            return;
-        }
-
-        $this->removeDirectory($this->outputDir);
     }
 }

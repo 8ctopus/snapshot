@@ -5,6 +5,9 @@ declare(strict_types=1);
 require_once __DIR__ . '/vendor/autoload.php';
 
 use Clue\Commander\Router;
+use DiDom\Document;
+use HttpSoft\Message\Request;
+use Nimbly\Shuttle\Shuttle;
 use Oct8pus\Snapshot\Sitemap;
 use Oct8pus\Snapshot\Snapshot;
 
@@ -85,7 +88,7 @@ $router->add('extract seo', static function () use ($output, $timestamp) : void 
             continue;
         }
 
-        $document = new DiDom\Document($html);
+        $document = new Document($html);
         $filePath = $file->getPathname();
 
         // save the first file path for directory
@@ -135,10 +138,10 @@ $router->add('download robots <url>', static function (array $args) use ($output
         return;
     }
 
-    $request = (new HttpSoft\Message\Request('GET', $url))
+    $request = (new Request('GET', $url))
         ->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
 
-    $client = new Nimbly\Shuttle\Shuttle();
+    $client = new Shuttle();
     $response = $client->sendRequest($request);
 
     if ($response->getStatusCode() !== 200) {
@@ -179,7 +182,7 @@ while (true) {
     echo "\n> ";
     $input = trim(fgets($stdin));
 
-    if (in_array($input, ['', 'exit', 'quit', 'q'])) {
+    if (in_array($input, ['', 'exit', 'quit', 'q'], true)) {
         break;
     }
 
