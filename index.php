@@ -123,8 +123,6 @@ $router->add('snapshot <urls>...', static function (array $args) use ($logger, &
             $logger->error("{$result['error']} - {$result['url']}");
             continue;
         }
-
-        //$logger->info("Snapshot taken - {$result['url']}");
     }
 });
 
@@ -166,6 +164,7 @@ $router->add('extract seo', static function () use ($logger, &$snapshotDir) : vo
     }
 
     file_put_contents("{$snapshotDir}/seo.txt", $data);
+    $logger->info('SEO extracted');
 });
 
 $router->add('clear', static function () use ($logger, $dir) : void {
