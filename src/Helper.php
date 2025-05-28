@@ -163,6 +163,7 @@ class Helper
                     throw new RuntimeException('Brotli decompression is not available. Please install the brotli extension.');
                 }
 
+                /** @disregard P1010 */
                 $body = \brotli_uncompress($body);
                 break;
 

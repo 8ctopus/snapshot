@@ -110,6 +110,73 @@ class Router
             $this->logger->info("{$count} pages");
         });
 
+        $this->router->add('discover hidden', function () : void {
+            if (!isset($this->host)) {
+                $this->logger->info('Please set host first');
+                return;
+            }
+
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($this->snapshotDir)
+            );
+
+            $hidden = [];
+
+            foreach ($iterator as $file) {
+                if (!$file->isFile() || $file->getExtension() !== 'html') {
+                    continue;
+                }
+
+                $document = new Document(file_get_contents($file->getPathname()));
+                $links = $document->find('a[href]');
+
+                foreach ($links as $link) {
+                    $href = $link->getAttribute('href');
+
+                    // remove query string and anchor
+                    $href = preg_replace('/#.*$/', '', $href);
+                    $href = preg_replace('/\?.*$/', '', $href);
+
+                    if (empty($href)) {
+                        continue;
+                    }
+
+                    // convert relative URLs to absolute
+                    if ($href[0] === '/') {
+                        $href = "{$this->host}{$href}";
+                    }
+
+                    // keep only internal links
+                    if (!str_starts_with($href, $this->host) || $href === $this->host) {
+                        continue;
+                    }
+
+                    if (in_array($href, $this->urls, true)) {
+                        continue;
+                    }
+
+                    $hidden[] = $href;
+                }
+            }
+
+            $hidden = array_unique($hidden);
+            sort($hidden);
+
+            if (empty($hidden)) {
+                $this->logger->info('No hidden links discovered');
+                return;
+            }
+
+            $count = count($hidden);
+            $this->logger->info("{$count} hidden links");
+
+            foreach ($hidden as $link) {
+                $this->logger->info($link);
+            }
+
+            $this->urls = $hidden;
+        });
+
         $this->router->add('extract seo', function () : void {
             $seo = [];
 
