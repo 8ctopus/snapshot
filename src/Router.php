@@ -147,7 +147,7 @@ class Router
                 $seo[] = [
                     'title' => $title,
                     'description' => $description,
-                    'robots' => $robots === ',' ? '' : $robots,
+                    'robots' => $robots === 'index,follow' ? '' : $robots,
                     'canonical' => $canonical,
                 ];
             }
