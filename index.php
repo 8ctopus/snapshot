@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/vendor/autoload.php';
 
+use Apix\Log\Format\ConsoleColors;
+use Apix\Log\Logger;
+use Apix\Log\Logger\Stream;
 use Clue\Commander\Router;
 use DiDom\Document;
 use HttpSoft\Message\Request;
@@ -11,20 +14,37 @@ use Nimbly\Shuttle\Shuttle;
 use Oct8pus\Snapshot\Sitemap;
 use Oct8pus\Snapshot\Snapshot;
 
+$stdout = (new Stream('php://stdout'))
+    // intercept logs that are >=
+    ->setMinLevel('debug')
+    // propagate to other loggers
+    ->setCascading(true)
+    ->setFormat(new ConsoleColors());
+
+$logger = new Logger([$stdout]);
+
+// snapshots/host/2025-05-27_12-26
 $output = __DIR__ . '/snapshots';
+$host = null;
 $timestamp = date('Y-m-d_H-i');
 $snapshot = new Snapshot($output, $timestamp);
 
 $router = new Router();
 
-$router->add('[--help | -h]', static function () use ($router) : void {
-    echo "Usage:\n";
+$router->add('[--help | -h]', static function () use ($router, $logger) : void {
+    $logger->info("Usage:");
+
     foreach ($router->getRoutes() as $route) {
-        echo "  {$route}\n";
+        $logger->info("  {$route}");
     }
 });
 
-$router->add('snapshot from sitemap <url>', static function (array $args) use ($snapshot, $output, $timestamp) : void {
+$router->add('host <host>', static function ($args) use ($logger, $host) : void {
+    $host = $args['host'];
+    $logger->info("Set host {$host}");
+});
+
+$router->add('snapshot from sitemap <url>', static function (array $args) use ($logger, $snapshot, $output, $timestamp) : void {
     $sitemap = new Sitemap($args['url'], $output, $timestamp);
     $sitemap->analyze();
 
@@ -34,41 +54,41 @@ $router->add('snapshot from sitemap <url>', static function (array $args) use ($
 
     foreach ($results as $result) {
         if (!isset($result['error'])) {
-            echo "Snapshot taken - {$result['url']}\n";
+            $logger->info("Snapshot taken - {$result['url']}");
             continue;
         }
 
-        echo "{$result['error']} - {$result['url']} \n";
+        $logger->info("{$result['error']} - {$result['url']}");
     }
 });
 
-$router->add('snapshot <urls>...', static function (array $args) use ($snapshot) : void {
+$router->add('snapshot <urls>...', static function (array $args) use ($logger, $snapshot) : void {
     $urls = $args['urls'];
 
     $results = $snapshot->takeSnapshots($urls);
 
     foreach ($results as $result) {
         if (!isset($result['error'])) {
-            echo "Snapshot taken - {$result['url']}\n";
+            $logger->info("Snapshot taken - {$result['url']}");
             continue;
         }
 
-        echo "{$result['error']} - {$result['url']} \n";
+        $logger->info("{$result['error']} - {$result['url']}");
     }
 });
 
-$router->add('sitemap <url>', static function (array $args) use ($output, $timestamp) : void {
+$router->add('sitemap <url>', static function (array $args) use ($logger, $output, $timestamp) : void {
     (new Sitemap($args['url'], $output, $timestamp))
         ->analyze()
         ->show(false);
 });
 
-$router->add('clear snapshots', static function () use ($snapshot) : void {
+$router->add('clear snapshots', static function () use ($logger, $snapshot) : void {
     $snapshot->clear();
-    echo "All snapshots cleared\n";
+    $logger->info("All snapshots cleared");
 });
 
-$router->add('extract seo', static function () use ($output, $timestamp) : void {
+$router->add('extract seo', static function () use ($logger, $output, $timestamp) : void {
     $seoData = [];
     $firstFilePath = null;
 
@@ -110,7 +130,7 @@ $router->add('extract seo', static function () use ($output, $timestamp) : void 
     }
 
     if (empty($seoData)) {
-        echo "No HTML files found in current snapshot\n";
+        $logger->info("No HTML files found in current snapshot");
         return;
     }
 
@@ -128,13 +148,13 @@ $router->add('extract seo', static function () use ($output, $timestamp) : void 
     }
 
     file_put_contents($seoFile, $content);
-    echo "SEO data saved to {$seoFile}\n";
+    $logger->info("SEO data saved to {$seoFile}");
 });
 
-$router->add('download robots <url>', static function (array $args) use ($output, $timestamp) : void {
+$router->add('download robots <url>', static function (array $args) use ($output, $timestamp, $logger) : void {
     $url = $args['url'];
     if (!str_ends_with($url, 'robots.txt')) {
-        echo "URL must end with robots.txt\n";
+        $logger->info("URL must end with robots.txt");
         return;
     }
 
@@ -145,7 +165,7 @@ $router->add('download robots <url>', static function (array $args) use ($output
     $response = $client->sendRequest($request);
 
     if ($response->getStatusCode() !== 200) {
-        echo "Failed to download robots.txt from {$url}\n";
+        $logger->info("Failed to download robots.txt from {$url}");
         return;
     }
 
@@ -155,13 +175,13 @@ $router->add('download robots <url>', static function (array $args) use ($output
     $dir = "{$output}/{$domain}/{$timestamp}";
 
     if (!is_dir($dir)) {
-        echo "No snapshot directory found for {$domain}\n";
+        $logger->info("No snapshot directory found for {$domain}");
         return;
     }
 
     $robotsFile = "{$dir}/robots.txt";
     file_put_contents($robotsFile, (string) $response->getBody());
-    echo "robots.txt saved to {$robotsFile}\n";
+    $logger->info("robots.txt saved to {$robotsFile}");
 });
 
 $router->add('exit', static function () : void {
