@@ -13,6 +13,7 @@
     ],
     "require": {
         "php": ">=8.0",
+        "8ctopus/apix-log": "^3.0",
         "clue/commander": "^1.4",
         "imangazaliev/didom": "^2.0",
         "nimbly/shuttle": "^2.0",
