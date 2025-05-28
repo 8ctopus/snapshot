@@ -30,10 +30,11 @@ class Helper
      * Remove directory recursively
      *
      * @param string $dir
+     * @param bool $removeRoot
      *
      * @return void
      */
-    public static function removeDirectory(string $dir) : void
+    public static function removeDirectory(string $dir, bool $removeRoot) : void
     {
         if (!is_dir($dir)) {
             return;
@@ -44,10 +45,12 @@ class Helper
         foreach ($files as $file) {
             $path = "{$dir}/{$file}";
 
-            is_dir($path) ? self::removeDirectory($path) : unlink($path);
+            is_dir($path) ? self::removeDirectory($path, true) : unlink($path);
         }
 
-        rmdir($dir);
+        if ($removeRoot) {
+            rmdir($dir);
+        }
     }
 
     protected function createRequest(string $url) : RequestInterface

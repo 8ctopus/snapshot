@@ -234,7 +234,7 @@ class Router
                 return;
             }
 
-            Helper::removeDirectory($this->dir);
+            Helper::removeDirectory($this->dir, false);
             $this->logger->info('All snapshots cleared');
         });
 
