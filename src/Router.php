@@ -34,7 +34,7 @@ class Router
 
     public function setupRoutes() : self
     {
-        $this->router->add('[--help | -h]', function () {
+        $this->router->add('[--help | -h]', function () : void {
             $this->logger->info('Usage:');
 
             foreach ($this->router->getRoutes() as $route) {
@@ -42,7 +42,7 @@ class Router
             }
         });
 
-        $this->router->add('host <host>', function ($args) {
+        $this->router->add('host <host>', function ($args) : void {
             $this->host = $args['host'];
             $timestamp = date('Y-m-d_H-i');
             $this->snapshotDir = "{$this->dir}/{$this->host}/{$timestamp}";
@@ -51,7 +51,7 @@ class Router
             $this->sitemap = new Sitemap($this->snapshotDir, $this->host);
         });
 
-        $this->router->add('sitemap [<path>]', function (array $args) {
+        $this->router->add('sitemap [<path>]', function (array $args) : void {
             if ($this->sitemap === null) {
                 $this->logger->info('Please set host first');
                 return;
@@ -64,10 +64,10 @@ class Router
             sort($this->urls);
 
             $count = count($this->urls);
-            $this->logger->info("sitemap has {$count} links");
+            $this->logger->info("{$count} links");
         });
 
-        $this->router->add('robots', function () {
+        $this->router->add('robots', function () : void {
             if ($this->host === null) {
                 $this->logger->info('Please set host first');
                 return;
@@ -96,7 +96,7 @@ class Router
             $this->logger->info($body);
         });
 
-        $this->router->add('snapshot <urls>...', function (array $args) {
+        $this->router->add('snapshot <urls>...', function (array $args) : void {
             if ($this->snapshot === null) {
                 $this->logger->info('Please set host first');
                 return;
@@ -106,17 +106,21 @@ class Router
                 $this->urls = $args['urls'];
             }
 
-            $results = $this->snapshot->takeSnapshots($this->urls);
+            $list = $this->snapshot->takeSnapshots($this->urls);
 
-            foreach ($results as $result) {
-                if (isset($result['error'])) {
-                    $this->logger->error("{$result['error']} - {$result['url']}");
+            foreach ($list as $item) {
+                if (isset($item['error'])) {
+                    $this->logger->error("{$item['error']} - {$item['url']}");
                     continue;
                 }
             }
+
+            $count = count($list);
+
+            $this->logger->info("{$count} pages");
         });
 
-        $this->router->add('extract seo', function () {
+        $this->router->add('extract seo', function () : void {
             $seo = [];
 
             $iterator = new RecursiveIteratorIterator(
@@ -162,7 +166,7 @@ class Router
             $this->logger->info('SEO extracted');
         });
 
-        $this->router->add('clear', function () {
+        $this->router->add('clear', function () : void {
             if (!is_dir($this->dir)) {
                 return;
             }
