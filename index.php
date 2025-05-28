@@ -134,17 +134,16 @@ $router->add('extract seo', static function () use ($logger, &$snapshotDir) : vo
     );
 
     foreach ($iterator as $file) {
-        // only process files from current timestamp directory
         if (!$file->isFile() || $file->getExtension() !== 'html') {
             continue;
         }
 
         $document = new Document(file_get_contents($file->getPathname()));
 
-        $title = $document->find('title')[0]?->text() ?? '';
-        $description = $document->find('meta[name="description"]')[0]?->getAttribute('content') ?? '';
-        $robots = $document->find('meta[name="robots"]')[0]?->getAttribute('content') ?? '';
-        $canonical = $document->find('link[rel="canonical"]')[0]?->getAttribute('href') ?? '';
+        $title = $document->first('title')?->text() ?? 'N/A';
+        $description = $document->first('meta[name="description"]')?->getAttribute('content', 'N/A');
+        $robots = $document->first('meta[name="robots"]')?->getAttribute('content', 'N/A');
+        $canonical = $document->first('link[rel="canonical"]')?->getAttribute('href', 'N/A');
 
         $seo[] = [
             'title' => $title,
