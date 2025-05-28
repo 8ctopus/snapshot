@@ -90,7 +90,7 @@ class Helper
 
         $index = str_pad((string) $this->index++, 2, '0', STR_PAD_LEFT);
 
-        return "{$this->outputDir}/{$index}-{$path}.{$extension}";
+        return "{$this->outputDir}/pages/{$index}-{$path}.{$extension}";
     }
 
     /**
