@@ -102,7 +102,11 @@ class Router
             }
 
             if ($args['urls'][0] !== 'urls') {
-                $this->urls = $args['urls'];
+                $this->urls = [];
+
+                foreach ($args['urls'] as $url) {
+                    $this->urls[] = $this->host . $url;
+                }
             }
 
             $count = $this->snapshot->takeSnapshots($this->urls);
