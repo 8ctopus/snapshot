@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-use Apix\Log\Format\ConsoleColors;
+use Apix\Log\Format\Minimal;
 use Apix\Log\Logger;
 use Apix\Log\Logger\Stream;
 use Clue\Commander\Router;
 use DiDom\Document;
 use HttpSoft\Message\Request;
 use Nimbly\Shuttle\Shuttle;
+use Oct8pus\Snapshot\Helper;
 use Oct8pus\Snapshot\Sitemap;
 use Oct8pus\Snapshot\Snapshot;
 
@@ -19,15 +20,18 @@ $stdout = (new Stream('php://stdout'))
     ->setMinLevel('debug')
     // propagate to other loggers
     ->setCascading(true)
-    ->setFormat(new ConsoleColors());
+    ->setFormat(new Minimal());
 
 $logger = new Logger([$stdout]);
 
-// snapshots/host/2025-05-27_12-26
-$dir = __DIR__ . '/snapshots';
 $host = null;
-$timestamp = date('Y-m-d_H-i');
-$snapshot = new Snapshot($dir, $timestamp);
+$dir = __DIR__ . '/snapshots';
+// snapshots/host/2025-05-27_12-26
+$snapshotDir = '';
+
+$snapshot = null;
+$sitemap = null;
+$urls = [];
 
 $router = new Router();
 
@@ -39,30 +43,71 @@ $router->add('[--help | -h]', static function () use ($router, $logger) : void {
     }
 });
 
-$router->add('host <host>', static function ($args) use ($logger, $host) : void {
+$router->add('host <host>', static function ($args) use ($logger, &$host, $dir, &$snapshotDir, &$snapshot, &$sitemap) : void {
     $host = $args['host'];
     $logger->info("Set host {$host}");
+
+    $timestamp = date('Y-m-d_H-i');
+    $snapshotDir = "{$dir}/{$host}/{$timestamp}";
+
+    $logger->info("snapshot dir - {$snapshotDir}");
+
+    $host = 'https://' . $host;
+
+    $snapshot = new Snapshot($snapshotDir);
+    $sitemap = new Sitemap($snapshotDir, $host);
 });
 
-$router->add('snapshot from sitemap <url>', static function (array $args) use ($logger, $snapshot, $dir, $timestamp) : void {
-    $sitemap = new Sitemap($args['url'], $dir, $timestamp);
-    $sitemap->analyze();
-
-    $urls = $sitemap->links();
-
-    $results = $snapshot->takeSnapshots($urls);
-
-    foreach ($results as $result) {
-        if (!isset($result['error'])) {
-            $logger->info("Snapshot taken - {$result['url']}");
-            continue;
-        }
-
-        $logger->info("{$result['error']} - {$result['url']}");
+$router->add('sitemap', static function () use ($logger, &$sitemap, &$urls) : void {
+    if ($sitemap === null) {
+        $logger->info("Please set host first");
+        return;
     }
+
+    $urls = $sitemap
+        ->analyze()
+        ->links();
+
+    $count = count($urls);
+
+    $logger->info("sitemap has {$count} links");
 });
 
-$router->add('snapshot <urls>...', static function (array $args) use ($logger, $snapshot) : void {
+$router->add('robots', static function () use ($logger, &$host, &$snapshotDir) : void {
+    if ($host === null) {
+        $logger->info("Please set host first");
+        return;
+    }
+
+    $url = $host . '/robots.txt';
+
+    $request = (new Request('GET', $url))
+        ->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
+
+    $client = new Shuttle();
+    $response = $client->sendRequest($request);
+
+    if ($response->getStatusCode() !== 200) {
+        $logger->error("Failed to download robots.txt from {$url}");
+        return;
+    }
+
+    $robotsFile = "{$snapshotDir}/robots.txt";
+
+    mkdir(dirname($robotsFile), 0777, true);
+
+    $body = (string) $response->getBody();
+    file_put_contents($robotsFile, $body);
+
+    $logger->info($body);
+});
+
+$router->add('snapshot <urls>...', static function (array $args) use ($logger, &$snapshot) : void {
+    if ($snapshot === null) {
+        $logger->info("Please set host first");
+        return;
+    }
+
     $urls = $args['urls'];
 
     $results = $snapshot->takeSnapshots($urls);
@@ -73,125 +118,64 @@ $router->add('snapshot <urls>...', static function (array $args) use ($logger, $
             continue;
         }
 
-        $logger->info("{$result['error']} - {$result['url']}");
+        $logger->error("{$result['error']} - {$result['url']}");
     }
 });
 
-$router->add('sitemap <url>', static function (array $args) use ($logger, $dir, $timestamp) : void {
-    (new Sitemap($args['url'], $dir, $timestamp))
-        ->analyze()
-        ->show(false);
-});
+$router->add('extract seo', static function () use ($logger, &$snapshotDir) : void {
+    $seo = [];
 
-$router->add('clear snapshots', static function () use ($logger, $snapshot) : void {
-    $snapshot->clear();
-    $logger->info("All snapshots cleared");
-});
-
-$router->add('extract seo', static function () use ($logger, $dir, $timestamp) : void {
-    $seoData = [];
-    $firstFilePath = null;
-
-    // find all html files in current snapshot directory
     $iterator = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($dir)
+        new RecursiveDirectoryIterator($snapshotDir)
     );
 
     foreach ($iterator as $file) {
         // only process files from current timestamp directory
-        if (!$file->isFile() || $file->getExtension() !== 'html' || !str_contains($file->getPathname(), $timestamp)) {
+        if (!$file->isFile() || $file->getExtension() !== 'html') {
             continue;
         }
 
-        $html = file_get_contents($file->getPathname());
-        if ($html === false) {
-            continue;
-        }
-
-        $document = new Document($html);
-        $filePath = $file->getPathname();
-
-        // save the first file path for directory
-        if ($firstFilePath === null) {
-            $firstFilePath = $filePath;
-        }
+        $document = new Document(file_get_contents($file->getPathname()));
 
         $title = $document->find('title')[0]?->text() ?? '';
         $description = $document->find('meta[name="description"]')[0]?->getAttribute('content') ?? '';
         $robots = $document->find('meta[name="robots"]')[0]?->getAttribute('content') ?? '';
         $canonical = $document->find('link[rel="canonical"]')[0]?->getAttribute('href') ?? '';
 
-        $seoData[] = [
-            'url' => $canonical ?: $filePath,
+        $seo[] = [
             'title' => $title,
             'description' => $description,
             'robots' => $robots,
+            'canonical' => $canonical,
         ];
     }
 
-    if (empty($seoData)) {
-        $logger->info("No HTML files found in current snapshot");
-        return;
+    $data = '';
+
+    foreach ($seo as $row) {
+        $data .= "title: {$row['title']}\n";
+        $data .= "description: {$row['description']}\n";
+        $data .= "robots: {$row['robots']}\n";
+        $data .= "canonical: {$row['canonical']}\n";
+        $data .= str_repeat('-', 80) . "\n";
     }
 
-    // use the first file's directory for the seo.txt file
-    $dir = dirname($firstFilePath);
-    $seoFile = "{$dir}/seo.txt";
-
-    $content = '';
-    foreach ($seoData as $data) {
-        $content .= "URL: {$data['url']}\n";
-        $content .= "Title: {$data['title']}\n";
-        $content .= "Description: {$data['description']}\n";
-        $content .= "Robots: {$data['robots']}\n";
-        $content .= str_repeat('-', 80) . "\n";
-    }
-
-    file_put_contents($seoFile, $content);
-    $logger->info("SEO data saved to {$seoFile}");
+    file_put_contents("{$snapshotDir}/seo.txt", $data);
 });
 
-$router->add('download robots <url>', static function (array $args) use ($dir, $timestamp, $logger) : void {
-    $url = $args['url'];
-    if (!str_ends_with($url, 'robots.txt')) {
-        $logger->info("URL must end with robots.txt");
-        return;
-    }
-
-    $request = (new Request('GET', $url))
-        ->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
-
-    $client = new Shuttle();
-    $response = $client->sendRequest($request);
-
-    if ($response->getStatusCode() !== 200) {
-        $logger->info("Failed to download robots.txt from {$url}");
-        return;
-    }
-
-    // extract domain from URL for directory structure
-    $parsedUrl = parse_url($url);
-    $domain = $parsedUrl['host'];
-    $dir = "{$dir}/{$domain}/{$timestamp}";
-
+$router->add('clear', static function () use ($logger, $dir) : void {
     if (!is_dir($dir)) {
-        $logger->info("No snapshot directory found for {$domain}");
         return;
     }
 
-    $robotsFile = "{$dir}/robots.txt";
-    file_put_contents($robotsFile, (string) $response->getBody());
-    $logger->info("robots.txt saved to {$robotsFile}");
-});
-
-$router->add('exit', static function () : void {
-    exit(0);
+    Helper::removeDirectory($dir);
+    $logger->info("All snapshots cleared");
 });
 
 $stdin = fopen('php://stdin', 'r');
 
 if ($stdin === false) {
-    throw new Exception('fopen');
+    throw new RuntimeException('fopen');
 }
 
 $input = $argv;

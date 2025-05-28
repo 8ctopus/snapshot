@@ -11,9 +11,9 @@ use RuntimeException;
 
 class Snapshot extends Helper
 {
-    public function __construct(string $outputDir, string $timestamp)
+    public function __construct(string $outputDir)
     {
-        parent::__construct($outputDir, $timestamp);
+        parent::__construct($outputDir);
     }
 
     /**
@@ -39,20 +39,6 @@ class Snapshot extends Helper
         }
 
         return $result;
-    }
-
-    /**
-     * Clear all snapshots
-     *
-     * @return void
-     */
-    public function clear() : void
-    {
-        if (!is_dir($this->outputDir)) {
-            return;
-        }
-
-        $this->removeDirectory($this->outputDir);
     }
 
     /**

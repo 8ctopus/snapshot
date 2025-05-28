@@ -12,19 +12,19 @@ use RuntimeException;
 
 class Helper
 {
-    protected readonly string $timestamp;
     protected readonly string $outputDir;
 
     private readonly Shuttle $client;
-    private array $indices;
+    // REM private array $indices;
+    private int $index;
 
-    public function __construct(string $outputDir, string $timestamp)
+    public function __construct(string $outputDir)
     {
         $this->outputDir = rtrim($outputDir, '/');
-        $this->timestamp = $timestamp;
 
         $this->client = new Shuttle();
-        $this->indices = [];
+        // REM $this->indices = [];
+        $this->index = 1;
     }
 
     protected function createRequest(string $url) : RequestInterface
@@ -60,8 +60,13 @@ class Helper
     {
         $parsedUrl = parse_url($url);
 
-        $domain = $parsedUrl['host'];
         $path = $this->getPathName($parsedUrl['path'] ?? '/');
+
+        $index = str_pad((string) $this->index++, 2, '0', STR_PAD_LEFT);
+
+        return "{$this->outputDir}/{$index}-{$path}.{$extension}";
+
+        /* FIX ME
         $key = "{$domain}/{$this->timestamp}";
 
         if (!isset($this->indices[$key])) {
@@ -71,7 +76,8 @@ class Helper
         $index = str_pad((string) $this->indices[$key], 2, '0', STR_PAD_LEFT);
         ++$this->indices[$key];
 
-        return "{$this->outputDir}/{$domain}/{$this->timestamp}/{$index}-{$path}.{$extension}";
+        return "{$this->outputDir}/{$index}-{$path}.{$extension}";
+        */
     }
 
     /**
@@ -167,7 +173,7 @@ class Helper
      *
      * @return void
      */
-    protected function removeDirectory(string $dir) : void
+    public static function removeDirectory(string $dir) : void
     {
         if (!is_dir($dir)) {
             return;
@@ -178,11 +184,7 @@ class Helper
         foreach ($files as $file) {
             $path = "{$dir}/{$file}";
 
-            if (is_dir($path)) {
-                $this->removeDirectory($path);
-            } else {
-                unlink($path);
-            }
+            is_dir($path) ? self::removeDirectory($path) : unlink($path);
         }
 
         rmdir($dir);

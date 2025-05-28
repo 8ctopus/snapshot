@@ -13,11 +13,15 @@ class Sitemap extends Helper
     private readonly string $url;
     private readonly array $links;
 
-    public function __construct(string $url, string $outputDir, string $timestamp)
+    public function __construct(string $outputDir, string $host, string $sitemap = 'sitemap.xml')
     {
-        $this->url = $url;
+        parent::__construct($outputDir);
 
-        parent::__construct($outputDir, $timestamp);
+        $this->url = "{$host}/{$sitemap}";
+
+        if (!str_ends_with($this->url, '.xml')) {
+            throw new RuntimeException('sitemap must have xml extension');
+        }
     }
 
     /**
@@ -27,10 +31,6 @@ class Sitemap extends Helper
      */
     public function analyze() : self
     {
-        if (!str_ends_with($this->url, '.xml')) {
-            throw new RuntimeException('sitemap must have xml extension');
-        }
-
         $response = $this->download($this->createRequest($this->url));
         $status = $response->getStatusCode();
 
