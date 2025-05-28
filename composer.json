@@ -1,8 +1,8 @@
 {
     "name": "8ctopus/snapshot",
     "type": "application",
-    "description": "",
-    "keywords": [],
+    "description": "take website snapshots",
+    "keywords": ["website snapshot"],
     "homepage": "https://github.com/8ctopus/snapshot",
     "license": "MIT",
     "authors": [
