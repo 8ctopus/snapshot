@@ -17,8 +17,6 @@ class Helper
     protected readonly string $outputDir;
 
     private readonly Shuttle $client;
-    // REM private array $indices;
-    private int $index;
 
     public function __construct(LoggerInterface $logger, string $outputDir)
     {
@@ -26,7 +24,6 @@ class Helper
         $this->outputDir = rtrim($outputDir, '/');
 
         $this->client = new Shuttle();
-        $this->index = 1;
     }
 
     /**

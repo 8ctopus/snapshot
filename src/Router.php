@@ -15,12 +15,12 @@ use RuntimeException;
 
 class Router
 {
-    private string $host = '';
+    private string $host;
     private string $dir;
-    private string $snapshotDir = '';
-    private ?Snapshot $snapshot = null;
-    private ?Sitemap $sitemap = null;
-    private array $urls = [];
+    private string $snapshotDir;
+    private Snapshot $snapshot;
+    private Sitemap $sitemap;
+    private array $urls;
     private CommanderRouter $router;
     private Logger $logger;
 
@@ -51,7 +51,7 @@ class Router
         });
 
         $this->router->add('sitemap [<path>]', function (array $args) : void {
-            if ($this->sitemap === null) {
+            if (!isset($this->host)) {
                 $this->logger->info('Please set host first');
                 return;
             }
@@ -67,7 +67,7 @@ class Router
         });
 
         $this->router->add('robots', function () : void {
-            if ($this->host === null) {
+            if (!isset($this->host)) {
                 $this->logger->info('Please set host first');
                 return;
             }
@@ -96,7 +96,7 @@ class Router
         });
 
         $this->router->add('snapshot <urls>...', function (array $args) : void {
-            if ($this->snapshot === null) {
+            if (!isset($this->host)) {
                 $this->logger->info('Please set host first');
                 return;
             }
