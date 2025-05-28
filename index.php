@@ -72,6 +72,8 @@ $router->add('sitemap', static function () use ($logger, &$sitemap, &$urls) : vo
         ->analyze()
         ->links();
 
+    sort($urls);
+
     $count = count($urls);
 
     $logger->info("sitemap has {$count} links");
