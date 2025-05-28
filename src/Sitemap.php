@@ -10,37 +10,41 @@ use RuntimeException;
 
 class Sitemap extends Helper
 {
-    private readonly string $url;
+    private readonly string $host;
     private readonly array $links;
 
-    public function __construct(string $outputDir, string $host, string $sitemap = 'sitemap.xml')
+    public function __construct(string $outputDir, string $host)
     {
         parent::__construct($outputDir);
 
-        $this->url = "{$host}/{$sitemap}";
-
-        if (!str_ends_with($this->url, '.xml')) {
-            throw new RuntimeException('sitemap must have xml extension');
-        }
+        $this->host = $host;
     }
 
     /**
      * Analyze sitemap
      *
+     * @param string $path
+     *
      * @return self
      */
-    public function analyze() : self
+    public function analyze(string $path = 'sitemap.xml') : self
     {
-        $response = $this->download($this->createRequest($this->url));
+        if (!str_ends_with($path, '.xml')) {
+            throw new RuntimeException('sitemap must have xml extension');
+        }
+
+        $url = "{$this->host}/{$path}";
+
+        $response = $this->download($this->createRequest($url));
         $status = $response->getStatusCode();
 
         if ($status !== 200) {
-            throw new RuntimeException("{$this->url} - {$status}");
+            throw new RuntimeException("download xml - {$status} - {$url}");
         }
 
         $body = $this->decompressResponse($response);
 
-        $filename = $this->getFilename($this->url, 'xml');
+        $filename = $this->getFilename($url, 'xml');
         $dir = dirname($filename);
 
         if (!is_dir($dir)) {
@@ -61,7 +65,7 @@ class Sitemap extends Helper
 
         if (!count($elements)) {
             // file itself is sitemap
-            $urls[] = $this->url;
+            $urls[] = $url;
         } else {
             foreach ($elements as $element) {
                 // list children sitemaps

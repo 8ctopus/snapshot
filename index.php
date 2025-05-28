@@ -62,14 +62,14 @@ $router->add('host <host>', static function ($args) use ($logger, &$host, $dir, 
     $sitemap = new Sitemap($snapshotDir, $host);
 });
 
-$router->add('sitemap', static function () use ($logger, &$sitemap, &$urls) : void {
+$router->add('sitemap [<path>]', static function (array $args) use ($logger, &$sitemap, &$urls) : void {
     if ($sitemap === null) {
         $logger->info('Please set host first');
         return;
     }
 
     $urls = $sitemap
-        ->analyze()
+        ->analyze(...(isset($args['path']) ? [$args['path']] : []))
         ->links();
 
     sort($urls);
