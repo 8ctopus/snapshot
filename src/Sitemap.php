@@ -6,6 +6,7 @@ namespace Oct8pus\Snapshot;
 
 use DiDom\Document;
 use DiDom\Query;
+use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -14,9 +15,9 @@ class Sitemap extends Helper
     private readonly string $host;
     private readonly array $links;
 
-    public function __construct(LoggerInterface $logger, string $outputDir, string $host)
+    public function __construct(ClientInterface $client, LoggerInterface $logger, string $outputDir, string $host)
     {
-        parent::__construct($logger, $outputDir);
+        parent::__construct($client, $logger, $outputDir);
 
         $this->host = $host;
     }

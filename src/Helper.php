@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Oct8pus\Snapshot;
 
 use HttpSoft\Message\Request;
-use Nimbly\Shuttle\Shuttle;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -13,17 +13,15 @@ use RuntimeException;
 
 class Helper
 {
+    private readonly ClientInterface $client;
     protected readonly LoggerInterface $logger;
     protected readonly string $outputDir;
 
-    private readonly Shuttle $client;
-
-    public function __construct(LoggerInterface $logger, string $outputDir)
+    public function __construct(ClientInterface $client, LoggerInterface $logger, string $outputDir)
     {
         $this->logger = $logger;
+        $this->client = $client;
         $this->outputDir = rtrim($outputDir, '/');
-
-        $this->client = new Shuttle();
     }
 
     /**

@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace Oct8pus\Snapshot;
 
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 class Snapshot extends Helper
 {
-    public function __construct(LoggerInterface $logger, string $outputDir)
+    public function __construct(ClientInterface $client, LoggerInterface $logger, string $outputDir)
     {
-        parent::__construct($logger, $outputDir);
+        parent::__construct($client, $logger, $outputDir);
     }
 
     /**

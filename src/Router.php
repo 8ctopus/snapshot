@@ -8,27 +8,36 @@ use Apix\Log\Logger;
 use Clue\Commander\Router as CommanderRouter;
 use DiDom\Document;
 use HttpSoft\Message\Request;
-use Nimbly\Shuttle\Shuttle;
+use Psr\Http\Client\ClientInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
 
 class Router
 {
-    private string $host;
+    private Logger $logger;
     private string $dir;
+    private CommanderRouter $router;
+    private ClientInterface $client;
+
+    private string $host;
     private string $snapshotDir;
     private Snapshot $snapshot;
     private Sitemap $sitemap;
     private array $urls;
-    private CommanderRouter $router;
-    private Logger $logger;
 
     public function __construct(Logger $logger, string $dir)
     {
         $this->logger = $logger;
         $this->dir = $dir;
         $this->router = new CommanderRouter();
+
+        $options = [
+            // FIX ME
+            CURLOPT_SSL_VERIFYPEER => false,
+        ];
+
+        $this->client = Client::make($options);
     }
 
     public function setupRoutes() : self
@@ -46,8 +55,8 @@ class Router
             $timestamp = date('Y-m-d_H-i');
             $this->snapshotDir = "{$this->dir}/{$this->host}/{$timestamp}";
             $this->host = "https://{$this->host}";
-            $this->snapshot = new Snapshot($this->logger, $this->snapshotDir);
-            $this->sitemap = new Sitemap($this->logger, $this->snapshotDir, $this->host);
+            $this->snapshot = new Snapshot($this->client, $this->logger, $this->snapshotDir);
+            $this->sitemap = new Sitemap($this->client, $this->logger, $this->snapshotDir, $this->host);
         });
 
         $this->router->add('sitemap [<path>]', function (array $args) : void {
@@ -77,8 +86,7 @@ class Router
             $request = (new Request('GET', $url))
                 ->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
 
-            $client = new Shuttle();
-            $response = $client->sendRequest($request);
+            $response = $this->client->sendRequest($request);
 
             if ($response->getStatusCode() !== 200) {
                 $this->logger->error("Failed to download robots.txt from {$url}");
