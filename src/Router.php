@@ -18,6 +18,7 @@ class Router
     private Logger $logger;
     private string $dir;
     private CommanderRouter $router;
+    private $stdin;
     private ClientInterface $client;
 
     private string $host;
@@ -31,6 +32,14 @@ class Router
         $this->logger = $logger;
         $this->dir = $dir;
         $this->router = new CommanderRouter();
+
+        $stdin = fopen('php://stdin', 'r');
+
+        if ($stdin === false) {
+            throw new RuntimeException('fopen');
+        }
+
+        $this->stdin = $stdin;
 
         $options = [
             // FIX ME
@@ -52,9 +61,14 @@ class Router
 
         $this->router->add('host <host>', function ($args) : void {
             $host = $args['host'];
-            $timestamp = date('Y-m-d_H-i');
 
-            $this->snapshotDir = "{$this->dir}/{$host}/{$timestamp}";
+            $name = $this->input('snapshot name');
+
+            if (empty($name)) {
+                $name = date('Y-m-d_H-i');
+            }
+
+            $this->snapshotDir = "{$this->dir}/{$host}/{$name}";
             $this->host = "https://{$host}";
             $this->snapshot = new Snapshot($this->client, $this->logger, $this->snapshotDir);
             $this->sitemap = new Sitemap($this->client, $this->logger, $this->snapshotDir, $this->host);
@@ -262,15 +276,8 @@ class Router
 
     public function run(array $input) : void
     {
-        $stdin = fopen('php://stdin', 'r');
-
-        if ($stdin === false) {
-            throw new RuntimeException('fopen');
-        }
-
         while (true) {
-            echo "\n> ";
-            $input = trim(fgets($stdin));
+            $input = $this->input();
 
             if (in_array($input, ['', 'exit', 'quit', 'q'], true)) {
                 break;
@@ -279,5 +286,16 @@ class Router
             $input = explode(' ', "dummy {$input}");
             $this->router->handleArgv($input);
         }
+    }
+
+    private function input(string $message = '') : string
+    {
+        echo "{$message}> ";
+
+        $input = trim(fgets($this->stdin));
+
+        echo "\n";
+
+        return $input;
     }
 }
