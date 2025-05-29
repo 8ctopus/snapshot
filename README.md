@@ -27,16 +27,16 @@ robots
 sitemap
 
 # take a snapshot of all pages in sitemap
-snapshot urls
+snapshot stashed
 
-# snapshot specific pages
+# snapshot specific pages (relative path)
 snapshot /page1 /page2
 
 # discover hidden pages not in sitemap (noindex)
 discover hidden
 
 # snapshot hidden pages
-snapshot urls
+snapshot stashed
 
 # extract SEO information (see seo.txt in snapshot dir)
 extract seo
@@ -52,9 +52,11 @@ The tool creates a directory structure like this:
 snapshots/
   example.com/
     2024-03-21_12-34/
-      index.html
-      page1.html
-      page2.html
-      robots.txt
       seo.txt
+      pages/
+        sitemap.xml
+        robots.txt
+        index.html
+        page1.html
+        page2.html
 ```
