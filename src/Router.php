@@ -281,15 +281,17 @@ class Router
             $this->sitemap = new Sitemap($this->client, $this->logger, $this->snapshotDir, $this->host);
         });
 
-        $this->router->add('clean', function ($args) : void {
+        $this->router->add('clean', function () : void {
             $rules = [
                 'cache-enabler' => [
                     'search' => "/<!-- Cache Enabler by KeyCDN @ \w{3}, \d{2} May 202\d{1} \d{2}:\d{2}:\d{2} GMT \(https-index\.html\.gz\) -->/",
                     'replace' => '',
                 ],
+                'yoast' => [
+                    'search' => "This site is optimized with the Yoast SEO plugin v\d{2}\.\d{1,2}",
+                    'replace' => "This site is optimized with the Yoast SEO plugin v0.0",
+                ],
             ];
-
-            //$rule = $rules[$args['rule']];
 
             $iterator = new RecursiveIteratorIterator(
                 new RecursiveDirectoryIterator($this->snapshotDir)
