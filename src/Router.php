@@ -220,13 +220,14 @@ class Router
                 $doindex = !str_contains($robots, 'noindex');
                 $dofollow = !str_contains($robots, 'nofollow');
 
-                $robots = ($doindex ? 'index' : 'noindex') . ',' . ($dofollow ? 'follow' : 'nofollow');
+                $robotsShort = ($doindex ? 'index' : 'noindex') . ',' . ($dofollow ? 'follow' : 'nofollow');
 
                 $seo[] = [
                     'url' => json_decode(file_get_contents(str_replace('.html', '.json', $file->getPathname())), true)['url'],
                     'title' => $title,
                     'description' => $description,
-                    'robots' => $robots === 'index,follow' ? '' : $robots,
+                    'robots-short' => $robotsShort === 'index,follow' ? '' : $robotsShort,
+                    'robots' => $robots,
                     'canonical' => $canonical,
                 ];
             }
@@ -238,6 +239,7 @@ class Router
                 $data .= "canonical: {$row['canonical']}\n";
                 $data .= "title: {$row['title']}\n";
                 $data .= "description: {$row['description']}\n";
+                $data .= "robots: {$row['robotsShort']}\n";
                 $data .= "robots: {$row['robots']}\n";
                 $data .= str_repeat('-', 80) . "\n";
             }
