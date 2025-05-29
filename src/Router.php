@@ -170,6 +170,18 @@ class Router
 
                     $hidden[] = $href;
                 }
+
+                $links = $document->find('link[rel="alternate"]');
+
+                foreach ($links as $link) {
+                    $href = $link->getAttribute('href');
+
+                    if (in_array($href, $this->stashed, true)) {
+                        continue;
+                    }
+
+                    $hidden[] = $href;
+                }
             }
 
             $hidden = array_unique($hidden);
