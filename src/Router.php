@@ -290,11 +290,9 @@ class Router
 
     private function input(string $message = '') : string
     {
-        echo "{$message}> ";
+        echo "\n{$message}> ";
 
         $input = trim(fgets($this->stdin));
-
-        echo "\n";
 
         return $input;
     }
