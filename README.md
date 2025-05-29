@@ -23,11 +23,11 @@ host example.com
 # download robots.txt
 robots
 
-# download and analyze sitemap
+# download sitemap
 sitemap
 
 # take a snapshot of all pages in sitemap
-snapshot stashed
+snapshot
 
 # snapshot specific pages (relative path)
 snapshot /page1 /page2
@@ -36,7 +36,7 @@ snapshot /page1 /page2
 discover hidden
 
 # snapshot hidden pages
-snapshot stashed
+snapshot
 
 # extract SEO information (see seo.txt in snapshot dir)
 extract seo
