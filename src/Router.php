@@ -281,6 +281,39 @@ class Router
             $this->sitemap = new Sitemap($this->client, $this->logger, $this->snapshotDir, $this->host);
         });
 
+        $this->router->add('clean', function ($args) : void {
+            $rules = [
+                'cache-enabler' => [
+                    'search' => "/<!-- Cache Enabler by KeyCDN @ \w{3}, \d{2} May 202\d{1} \d{2}:\d{2}:\d{2} GMT \(https-index\.html\.gz\) -->/",
+                    'replace' => '',
+                ],
+            ];
+
+            //$rule = $rules[$args['rule']];
+
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($this->snapshotDir)
+            );
+
+            foreach ($iterator as $file) {
+                if (!$file->isFile() || $file->getExtension() !== 'html') {
+                    continue;
+                }
+
+                $original = file_get_contents($file->getPathname());
+                $updated = $original;
+
+                foreach ($rules as $rule) {
+                    $updated = preg_replace($rule['search'], $rule['replace'], $updated, -1);
+                }
+
+                if ($updated !== $original) {
+                    copy($file->getPathname(), $file->getPathname() . '.bak');
+                    file_put_contents($file->getPathname(), $updated);
+                }
+            }
+        });
+
         $this->router->add('clear', function () : void {
             if (!is_dir($this->dir)) {
                 return;
