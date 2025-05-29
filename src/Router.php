@@ -51,10 +51,11 @@ class Router
         });
 
         $this->router->add('host <host>', function ($args) : void {
-            $this->host = $args['host'];
+            $host = $args['host'];
             $timestamp = date('Y-m-d_H-i');
-            $this->snapshotDir = "{$this->dir}/{$this->host}/{$timestamp}";
-            $this->host = "https://{$this->host}";
+
+            $this->snapshotDir = "{$this->dir}/{$host}/{$timestamp}";
+            $this->host = "https://{$host}";
             $this->snapshot = new Snapshot($this->client, $this->logger, $this->snapshotDir);
             $this->sitemap = new Sitemap($this->client, $this->logger, $this->snapshotDir, $this->host);
         });
