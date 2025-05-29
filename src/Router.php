@@ -60,7 +60,7 @@ class Router
         });
 
         $this->router->add('host <host>', function ($args) : void {
-            $host = $args['host'];
+            $this->host = $args['host'];
 
             $name = $this->input('snapshot name');
 
@@ -68,8 +68,27 @@ class Router
                 $name = date('Y-m-d_H-i');
             }
 
-            $this->snapshotDir = "{$this->dir}/{$host}/{$name}";
-            $this->host = "https://{$host}";
+            $this->snapshotDir = "{$this->dir}/{$this->host}/{$name}";
+            $this->snapshot = new Snapshot($this->client, $this->logger, $this->snapshotDir);
+            $this->sitemap = new Sitemap($this->client, $this->logger, $this->snapshotDir, "https://{$this->host}");
+        });
+
+        $this->router->add('select <snapshot>', function ($args) : void {
+            $name = $args['snapshot'];
+
+            if (empty($name)) {
+                $this->logger->error('snapshot dir required');
+                return;
+            }
+
+            $dir = "{$this->dir}/{$this->host}/{$name}";
+
+            if (!file_exists($dir)) {
+                $this->logger->error('snapshot dir does not exist');
+                return;
+            }
+
+            $this->snapshotDir = $dir;
             $this->snapshot = new Snapshot($this->client, $this->logger, $this->snapshotDir);
             $this->sitemap = new Sitemap($this->client, $this->logger, $this->snapshotDir, $this->host);
         });
@@ -96,7 +115,7 @@ class Router
                 return;
             }
 
-            $url = $this->host . '/robots.txt';
+            $url = "https:{$this->host}/robots.txt";
 
             $request = (new Request('GET', $url))
                 ->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
@@ -128,7 +147,7 @@ class Router
                 $this->stashed = [];
 
                 foreach ($args['urls'] as $url) {
-                    $this->stashed[] = $this->host . $url;
+                    $this->stashed[] = "https://{$this->host}{$url}";
                 }
             }
 
@@ -170,7 +189,7 @@ class Router
 
                     // convert relative URLs to absolute
                     if ($href[0] === '/') {
-                        $href = "{$this->host}{$href}";
+                        $href = "https://{$this->host}{$href}";
                     }
 
                     // keep only internal links
