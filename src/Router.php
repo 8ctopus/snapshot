@@ -8,7 +8,6 @@ use Apix\Log\Logger;
 use Clue\Commander\Router as CommanderRouter;
 use DiDom\Document;
 use HttpSoft\Message\Request;
-use Psr\Http\Client\ClientInterface;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
@@ -19,7 +18,7 @@ class Router
     private string $dir;
     private CommanderRouter $router;
     private $stdin;
-    private ClientInterface $client;
+    private Client $client;
 
     private string $host;
     private string $snapshotDir;
@@ -46,7 +45,7 @@ class Router
             CURLOPT_SSL_VERIFYPEER => false,
         ];
 
-        $this->client = Client::make($options);
+        $this->client = new Client($options);
     }
 
     public function setupRoutes() : self
@@ -101,7 +100,7 @@ class Router
             $request = (new Request('GET', $url))
                 ->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
 
-            $response = $this->client->sendRequest($request);
+            $response = $this->client->download($request);
 
             if ($response->getStatusCode() !== 200) {
                 $this->logger->error("Failed to download robots.txt from {$url}");

@@ -6,7 +6,6 @@ namespace Oct8pus\Snapshot;
 
 use DiDom\Document;
 use DiDom\Query;
-use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 use RuntimeException;
 
@@ -15,7 +14,7 @@ class Sitemap extends Helper
     private readonly string $host;
     private readonly array $links;
 
-    public function __construct(ClientInterface $client, LoggerInterface $logger, string $outputDir, string $host)
+    public function __construct(Client $client, LoggerInterface $logger, string $outputDir, string $host)
     {
         parent::__construct($client, $logger, $outputDir);
 
@@ -37,7 +36,8 @@ class Sitemap extends Helper
 
         $url = "{$this->host}/{$path}";
 
-        $response = $this->download($this->createRequest($url));
+        $request = $this->client->createRequest($url);
+        $response = $this->client->download($request);
         $status = $response->getStatusCode();
 
         if ($status !== 200) {
@@ -89,7 +89,7 @@ class Sitemap extends Helper
 
         // parse sub-sitemaps
         foreach ($urls as $url) {
-            $response = $this->download($this->createRequest($url));
+            $response = $this->client->download($this->client->createRequest($url));
             $page = $this->decompressResponse($response);
 
             // save sub-sitemap

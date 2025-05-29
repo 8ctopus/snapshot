@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace Oct8pus\Snapshot;
 
-use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
 class Snapshot extends Helper
 {
-    public function __construct(ClientInterface $client, LoggerInterface $logger, string $outputDir)
+    public function __construct(Client $client, LoggerInterface $logger, string $outputDir)
     {
         parent::__construct($client, $logger, $outputDir);
     }
@@ -45,8 +44,8 @@ class Snapshot extends Helper
      */
     private function takeSnapshot(string $url) : bool
     {
-        $request = $this->createRequest($url);
-        $response = $this->download($request);
+        $request = $this->client->createRequest($url);
+        $response = $this->client->download($request);
 
         $status = $response->getStatusCode();
 
