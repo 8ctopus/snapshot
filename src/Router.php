@@ -73,26 +73,6 @@ class Router
             $this->sitemap = new Sitemap($this->client, $this->logger, $this->snapshotDir, "https://{$this->host}");
         });
 
-        $this->router->add('select <snapshot>', function ($args) : void {
-            $name = $args['snapshot'];
-
-            if (empty($name)) {
-                $this->logger->error('snapshot dir required');
-                return;
-            }
-
-            $dir = "{$this->dir}/{$this->host}/{$name}";
-
-            if (!file_exists($dir)) {
-                $this->logger->error('snapshot dir does not exist');
-                return;
-            }
-
-            $this->snapshotDir = $dir;
-            $this->snapshot = new Snapshot($this->client, $this->logger, $this->snapshotDir);
-            $this->sitemap = new Sitemap($this->client, $this->logger, $this->snapshotDir, $this->host);
-        });
-
         $this->router->add('sitemap [<path>]', function (array $args) : void {
             if (!isset($this->host)) {
                 $this->logger->info('set host first');
@@ -279,6 +259,26 @@ class Router
 
             file_put_contents("{$this->snapshotDir}/seo.txt", $data);
             $this->logger->info('SEO extracted');
+        });
+
+        $this->router->add('select <snapshot>', function ($args) : void {
+            $name = $args['snapshot'];
+
+            if (empty($name)) {
+                $this->logger->error('snapshot dir required');
+                return;
+            }
+
+            $dir = "{$this->dir}/{$this->host}/{$name}";
+
+            if (!file_exists($dir)) {
+                $this->logger->error('snapshot dir does not exist');
+                return;
+            }
+
+            $this->snapshotDir = $dir;
+            $this->snapshot = new Snapshot($this->client, $this->logger, $this->snapshotDir);
+            $this->sitemap = new Sitemap($this->client, $this->logger, $this->snapshotDir, $this->host);
         });
 
         $this->router->add('clear', function () : void {
