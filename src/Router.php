@@ -24,7 +24,7 @@ class Router
     private string $snapshotDir;
     private Snapshot $snapshot;
     private Sitemap $sitemap;
-    private array $urls;
+    private array $stashed;
 
     public function __construct(Logger $logger, string $dir)
     {
@@ -66,14 +66,14 @@ class Router
                 return;
             }
 
-            $this->urls = $this->sitemap
+            $this->stashed = $this->sitemap
                 ->analyze(...(isset($args['path']) ? [$args['path']] : []))
                 ->links();
 
-            sort($this->urls);
+            sort($this->stashed);
 
-            $count = count($this->urls);
-            $this->logger->info("{$count} links");
+            $count = count($this->stashed);
+            $this->logger->info("{$count} links stashed");
         });
 
         $this->router->add('robots', function () : void {
@@ -110,15 +110,15 @@ class Router
                 return;
             }
 
-            if ($args['urls'][0] !== 'urls') {
-                $this->urls = [];
+            if ($args['urls'][0] !== 'stashed') {
+                $this->stashed = [];
 
                 foreach ($args['urls'] as $url) {
-                    $this->urls[] = $this->host . $url;
+                    $this->stashed[] = $this->host . $url;
                 }
             }
 
-            $count = $this->snapshot->takeSnapshots($this->urls);
+            $count = $this->snapshot->takeSnapshots($this->stashed);
 
             $this->logger->info("{$count} pages");
         });
@@ -164,7 +164,7 @@ class Router
                         continue;
                     }
 
-                    if (in_array($href, $this->urls, true)) {
+                    if (in_array($href, $this->stashed, true)) {
                         continue;
                     }
 
@@ -175,19 +175,14 @@ class Router
             $hidden = array_unique($hidden);
             sort($hidden);
 
-            if (empty($hidden)) {
-                $this->logger->info('No hidden links discovered');
-                return;
-            }
-
             $count = count($hidden);
-            $this->logger->info("{$count} hidden links");
+            $this->logger->info("{$count} hidden links stashed");
 
             foreach ($hidden as $link) {
                 $this->logger->info($link);
             }
 
-            $this->urls = $hidden;
+            $this->stashed = $hidden;
         });
 
         $this->router->add('extract seo', function () : void {
