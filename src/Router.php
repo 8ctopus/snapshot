@@ -41,11 +41,12 @@ class Router
         $this->stdin = $stdin;
 
         $options = [
-            // FIX ME
+            // FIX ME - move to setting somewhere
             CURLOPT_SSL_VERIFYPEER => false,
         ];
 
-        $this->client = new Client($options);
+        // FIX ME - move to setting somewhere
+        $this->client = new Client($options, '?nocache');
     }
 
     public function setupRoutes() : self
