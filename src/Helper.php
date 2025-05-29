@@ -150,6 +150,9 @@ class Helper
                 $body = \brotli_uncompress($body);
                 break;
 
+            case '':
+                break;
+
             default:
                 throw new RuntimeException("Unsupported content encoding: {$encoding}");
         }
