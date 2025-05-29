@@ -42,8 +42,8 @@ class Router
 
     public function setupRoutes() : self
     {
-        $this->router->add('[--help | -h]', function () : void {
-            $this->logger->info('Usage:');
+        $this->router->add('help', function () : void {
+            $this->logger->info('commands:');
 
             foreach ($this->router->getRoutes() as $route) {
                 $this->logger->info("  {$route}");
@@ -269,8 +269,6 @@ class Router
         }
 
         while (true) {
-            $this->router->handleArgv($input);
-
             echo "\n> ";
             $input = trim(fgets($stdin));
 
@@ -279,6 +277,7 @@ class Router
             }
 
             $input = explode(' ', "dummy {$input}");
+            $this->router->handleArgv($input);
         }
     }
 }
