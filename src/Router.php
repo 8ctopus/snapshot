@@ -174,15 +174,16 @@ class Router
 
             $hidden = array_unique($hidden);
             sort($hidden);
+            $this->stashed = $hidden;
 
             $count = count($hidden);
             $this->logger->info("{$count} hidden links stashed");
+        });
 
-            foreach ($hidden as $link) {
+        $this->router->add('list stashed', function () : void {
+            foreach ($this->stashed as $link) {
                 $this->logger->info($link);
             }
-
-            $this->stashed = $hidden;
         });
 
         $this->router->add('extract seo', function () : void {
