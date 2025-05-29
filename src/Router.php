@@ -68,7 +68,14 @@ class Router
                 $name = date('Y-m-d_H-i');
             }
 
-            $this->snapshotDir = "{$this->dir}/{$this->host}/{$name}";
+            $dir = "{$this->dir}/{$this->host}/{$name}";
+
+            if (file_exists($dir)) {
+                $this->logger->error('snapshot name already exists');
+                return;
+            }
+
+            $this->snapshotDir = $dir;
             $this->snapshot = new Snapshot($this->client, $this->logger, $this->snapshotDir);
             $this->sitemap = new Sitemap($this->client, $this->logger, $this->snapshotDir, "https://{$this->host}");
         });
