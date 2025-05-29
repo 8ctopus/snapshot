@@ -76,7 +76,7 @@ class Router
 
         $this->router->add('sitemap [<path>]', function (array $args) : void {
             if (!isset($this->host)) {
-                $this->logger->info('Please set host first');
+                $this->logger->info('set host first');
                 return;
             }
 
@@ -92,7 +92,7 @@ class Router
 
         $this->router->add('robots', function () : void {
             if (!isset($this->host)) {
-                $this->logger->info('Please set host first');
+                $this->logger->info('set host first');
                 return;
             }
 
@@ -104,7 +104,7 @@ class Router
             $response = $this->client->download($request);
 
             if ($response->getStatusCode() !== 200) {
-                $this->logger->error("Failed to download robots.txt from {$url}");
+                $this->logger->error("download robots.txt {$url}");
                 return;
             }
 
@@ -118,13 +118,13 @@ class Router
             $this->logger->info($body);
         });
 
-        $this->router->add('snapshot <urls>...', function (array $args) : void {
+        $this->router->add('snapshot [<urls>...]', function (array $args) : void {
             if (!isset($this->host)) {
-                $this->logger->info('Please set host first');
+                $this->logger->info('set host first');
                 return;
             }
 
-            if ($args['urls'][0] !== 'stashed') {
+            if (isset($args['urls'])) {
                 $this->stashed = [];
 
                 foreach ($args['urls'] as $url) {
@@ -139,7 +139,7 @@ class Router
 
         $this->router->add('discover hidden', function () : void {
             if (!isset($this->host)) {
-                $this->logger->info('Please set host first');
+                $this->logger->info('set host first');
                 return;
             }
 
@@ -206,7 +206,7 @@ class Router
             $this->logger->info("{$count} hidden links stashed");
         });
 
-        $this->router->add('list stashed', function () : void {
+        $this->router->add('list', function () : void {
             foreach ($this->stashed as $link) {
                 $this->logger->info($link);
             }
@@ -268,7 +268,7 @@ class Router
             }
 
             Helper::removeDirectory($this->dir, false);
-            $this->logger->info('All snapshots cleared');
+            $this->logger->info('snapshots cleared');
         });
 
         return $this;
