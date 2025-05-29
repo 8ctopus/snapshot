@@ -96,7 +96,7 @@ class Snapshot extends Helper
             ],
         ];
 
-        file_put_contents($filename, json_encode($headers, JSON_PRETTY_PRINT));
+        file_put_contents($filename, json_encode($headers, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
 
         $body = $this->decompressResponse($response);
 
