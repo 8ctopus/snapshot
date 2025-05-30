@@ -317,7 +317,12 @@ class Router
                 }
 
                 if ($updated !== $original) {
-                    copy($file->getPathname(), $file->getPathname() . '.bak');
+                    $backup = $file->getPathname() . '.bak';
+
+                    if (!file_exists($backup)) {
+                        copy($file->getPathname(), $backup);
+                    }
+
                     file_put_contents($file->getPathname(), $updated);
                 }
             }
