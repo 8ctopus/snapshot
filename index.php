@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use Apix\Log\Format\MinimalColors;
+use Apix\Log\Format\MinimalColored;
 use Apix\Log\Logger;
 use Apix\Log\Logger\Stream;
 use NunoMaduro\Collision\Provider as ExceptionHandler;
@@ -18,7 +18,7 @@ $stdout = (new Stream('php://stdout'))
     ->setMinLevel('debug')
     // propagate to other loggers
     ->setCascading(true)
-    ->setFormat(new MinimalColors());
+    ->setFormat(new MinimalColored());
 
 $logger = new Logger([$stdout]);
 

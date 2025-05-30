@@ -82,7 +82,7 @@ class Router
 
         $this->router->add('sitemap [<path>]', function (array $args) : void {
             if (!isset($this->host)) {
-                $this->logger->info('set host first');
+                $this->logger->error('set host first');
                 return;
             }
 
@@ -98,7 +98,7 @@ class Router
 
         $this->router->add('robots', function () : void {
             if (!isset($this->host)) {
-                $this->logger->info('set host first');
+                $this->logger->error('set host first');
                 return;
             }
 
@@ -126,7 +126,7 @@ class Router
 
         $this->router->add('snapshot [<urls>...]', function (array $args) : void {
             if (!isset($this->host)) {
-                $this->logger->info('set host first');
+                $this->logger->error('set host first');
                 return;
             }
 
@@ -145,7 +145,7 @@ class Router
 
         $this->router->add('discover hidden', function () : void {
             if (!isset($this->host)) {
-                $this->logger->info('set host first');
+                $this->logger->error('set host first');
                 return;
             }
 
