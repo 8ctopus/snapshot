@@ -12,87 +12,44 @@ use RuntimeException;
 class Sitemap extends Helper
 {
     private readonly string $host;
-    private readonly array $links;
+    private array $links;
 
     public function __construct(Client $client, LoggerInterface $logger, string $outputDir, string $host)
     {
         parent::__construct($client, $logger, $outputDir);
 
         $this->host = $host;
+        $this->links = [];
     }
 
     /**
      * Analyze sitemap
      *
-     * @param string $path
+     * @param array $urls
      *
      * @return self
      */
-    public function analyze(string $path = 'sitemap.xml') : self
+    public function analyze(array $urls) : self
     {
-        if (!str_ends_with($path, '.xml')) {
-            throw new RuntimeException('sitemap must have xml extension');
-        }
-
-        $url = "{$this->host}/{$path}";
-
-        $request = $this->client->createRequest($url);
-        $response = $this->client->download($request);
-        $status = $response->getStatusCode();
-
-        if ($status !== 200) {
-            throw new RuntimeException("download xml - {$status} - {$url}");
-        }
-
-        $body = $this->decompressResponse($response);
-
-        $filename = $this->getFilename($url, 'xml');
-        $dir = dirname($filename);
-
-        if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
-        }
-
-        file_put_contents($filename, $body);
-
-        $document = new Document($body, false, 'UTF-8', Document::TYPE_XML);
-
-        // add namespace
-        $document->registerNamespace('s', 'http://www.sitemaps.org/schemas/sitemap/0.9');
-
-        // search for sitemaps within sitemap
-        $elements = $document->find('/s:sitemapindex/s:sitemap', Query::TYPE_XPATH);
-
-        $urls = [];
-
-        if (!count($elements)) {
-            // file itself is sitemap
-            $urls[] = $url;
-        } else {
-            foreach ($elements as $element) {
-                // list children sitemaps
-                foreach ($element->children() as $child) {
-                    $name = $child->getNode()->nodeName;
-
-                    switch ($name) {
-                        case 'loc':
-                            $urls[] = $child->text();
-                            break;
-
-                        default:
-                    }
-                }
-            }
-        }
-
-        $links = [];
-
-        // parse sub-sitemaps
         foreach ($urls as $url) {
-            $response = $this->client->download($this->client->createRequest($url));
-            $page = $this->decompressResponse($response);
+            if (!str_ends_with($url, '.xml')) {
+                throw new RuntimeException('sitemap must have xml extension');
+            }
 
-            // save sub-sitemap
+            if (!str_starts_with($url, 'http')) {
+                $url = "{$this->host}/{$url}";
+            }
+
+            $request = $this->client->createRequest($url);
+            $response = $this->client->download($request);
+            $status = $response->getStatusCode();
+
+            if ($status !== 200) {
+                throw new RuntimeException("download xml - {$status} - {$url}");
+            }
+
+            $body = $this->decompressResponse($response);
+
             $filename = $this->getFilename($url, 'xml');
             $dir = dirname($filename);
 
@@ -100,43 +57,92 @@ class Sitemap extends Helper
                 mkdir($dir, 0777, true);
             }
 
-            file_put_contents($filename, $page);
+            file_put_contents($filename, $body);
 
-            $document = new Document($page, false, 'UTF-8', Document::TYPE_XML);
+            $document = new Document($body, false, 'UTF-8', Document::TYPE_XML);
 
             // add namespace
             $document->registerNamespace('s', 'http://www.sitemaps.org/schemas/sitemap/0.9');
 
-            // get url nodes
-            $elements = $document->find('/s:urlset/s:url', Query::TYPE_XPATH);
+            // search for sitemaps within sitemap
+            $elements = $document->find('/s:sitemapindex/s:sitemap', Query::TYPE_XPATH);
 
-            // get urls
-            foreach ($elements as $element) {
-                $link = [];
+            $urls = [];
 
-                // list url children nodes
-                foreach ($element->children() as $child) {
-                    $name = $child->getNode()->nodeName;
+            if (!count($elements)) {
+                // file itself is sitemap
+                $urls[] = $url;
+            } else {
+                foreach ($elements as $element) {
+                    // list children sitemaps
+                    foreach ($element->children() as $child) {
+                        $name = $child->getNode()->nodeName;
 
-                    switch ($name) {
-                        case 'loc':
-                            $link[$name] = urldecode($child->text());
-                            break;
+                        switch ($name) {
+                            case 'loc':
+                                $urls[] = $child->text();
+                                break;
 
-                        case 'lastmod':
-                            $lastmod = $child->text();
-                            $link[$name] = strtotime($lastmod);
-                            break;
-
-                        default:
+                            default:
+                        }
                     }
                 }
-
-                $links[] = $link;
             }
+
+            $links = [];
+
+            // parse sub-sitemaps
+            foreach ($urls as $url) {
+                $response = $this->client->download($this->client->createRequest($url));
+                $page = $this->decompressResponse($response);
+
+                // save sub-sitemap
+                $filename = $this->getFilename($url, 'xml');
+                $dir = dirname($filename);
+
+                if (!is_dir($dir)) {
+                    mkdir($dir, 0777, true);
+                }
+
+                file_put_contents($filename, $page);
+
+                $document = new Document($page, false, 'UTF-8', Document::TYPE_XML);
+
+                // add namespace
+                $document->registerNamespace('s', 'http://www.sitemaps.org/schemas/sitemap/0.9');
+
+                // get url nodes
+                $elements = $document->find('/s:urlset/s:url', Query::TYPE_XPATH);
+
+                // get urls
+                foreach ($elements as $element) {
+                    $link = [];
+
+                    // list url children nodes
+                    foreach ($element->children() as $child) {
+                        $name = $child->getNode()->nodeName;
+
+                        switch ($name) {
+                            case 'loc':
+                                $link[$name] = urldecode($child->text());
+                                break;
+
+                            case 'lastmod':
+                                $lastmod = $child->text();
+                                $link[$name] = strtotime($lastmod);
+                                break;
+
+                            default:
+                        }
+                    }
+
+                    $links[] = $link;
+                }
+            }
+
+            $this->links = array_merge($this->links, $links);
         }
 
-        $this->links = $links;
         return $this;
     }
 

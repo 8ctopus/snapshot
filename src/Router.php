@@ -25,7 +25,8 @@ class Router
     private string $snapshotDir;
     private Snapshot $snapshot;
     private Sitemap $sitemap;
-    private array $stashed;
+    private array $stashedUrls;
+    private array $stashedSitemaps;
 
     public function __construct(Logger $logger, string $dir)
     {
@@ -81,29 +82,13 @@ class Router
             $this->sitemap = new Sitemap($this->client, $this->logger, $this->snapshotDir, "https://{$this->host}");
         });
 
-        $this->router->add('sitemap [<path>]', function (array $args) : void {
-            if (!isset($this->host)) {
-                $this->logger->error('set host first');
-                return;
-            }
-
-            $this->stashed = $this->sitemap
-                ->analyze(...(isset($args['path']) ? [$args['path']] : []))
-                ->links();
-
-            sort($this->stashed);
-
-            $count = count($this->stashed);
-            $this->logger->info("{$count} links stashed");
-        });
-
         $this->router->add('robots', function () : void {
             if (!isset($this->host)) {
                 $this->logger->error('set host first');
                 return;
             }
 
-            $url = "https:{$this->host}/robots.txt";
+            $url = "https://{$this->host}/robots.txt";
 
             $request = (new Request('GET', $url))
                 ->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36');
@@ -120,9 +105,37 @@ class Router
             mkdir(dirname($robotsFile), 0777, true);
 
             $body = (string) $response->getBody();
+            $this->logger->info($body);
             file_put_contents($robotsFile, $body);
 
-            $this->logger->info($body);
+            if (preg_match_all('/^sitemap: ?(.*)$/mi', $body, $matches) === false) {
+                throw new RuntimeException('unrecognized sitemap');
+            }
+
+            $this->stashedSitemaps = $matches[1];
+            $count = count($matches[1]);
+
+            $this->logger->info("{$count} sitemaps found");
+        });
+
+        $this->router->add('sitemap [<paths>...]', function (array $args) : void {
+            if (!isset($this->host)) {
+                $this->logger->error('set host first');
+                return;
+            }
+
+            if (isset($args['paths'])) {
+                $this->stashedSitemaps = $args['paths'];
+            }
+
+            $this->stashedUrls = $this->sitemap
+                ->analyze($this->stashedSitemaps)
+                ->links();
+
+            sort($this->stashedUrls);
+
+            $count = count($this->stashedUrls);
+            $this->logger->info("{$count} links stashed");
         });
 
         $this->router->add('snapshot [<urls>...]', function (array $args) : void {
@@ -132,14 +145,14 @@ class Router
             }
 
             if (isset($args['urls'])) {
-                $this->stashed = [];
+                $this->stashedUrls = [];
 
                 foreach ($args['urls'] as $url) {
-                    $this->stashed[] = "https://{$this->host}{$url}";
+                    $this->stashedUrls[] = "https://{$this->host}{$url}";
                 }
             }
 
-            $count = $this->snapshot->takeSnapshots($this->stashed);
+            $count = $this->snapshot->takeSnapshots($this->stashedUrls);
 
             $this->logger->info("{$count} pages");
         });
@@ -185,7 +198,7 @@ class Router
                         continue;
                     }
 
-                    if (in_array($href, $this->stashed, true)) {
+                    if (in_array($href, $this->stashedUrls, true)) {
                         continue;
                     }
 
@@ -197,7 +210,7 @@ class Router
                 foreach ($links as $link) {
                     $href = $link->getAttribute('href');
 
-                    if (in_array($href, $this->stashed, true)) {
+                    if (in_array($href, $this->stashedUrls, true)) {
                         continue;
                     }
 
@@ -207,14 +220,14 @@ class Router
 
             $hidden = array_unique($hidden);
             sort($hidden);
-            $this->stashed = $hidden;
+            $this->stashedUrls = $hidden;
 
             $count = count($hidden);
             $this->logger->info("{$count} hidden links stashed");
         });
 
         $this->router->add('list', function () : void {
-            foreach ($this->stashed as $link) {
+            foreach ($this->stashedUrls as $link) {
                 $this->logger->info($link);
             }
         });
