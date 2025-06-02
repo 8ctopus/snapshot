@@ -102,7 +102,11 @@ class Router
 
             $robotsFile = "{$this->snapshotDir}/robots.txt";
 
-            mkdir(dirname($robotsFile), 0777, true);
+            $dir = dirname($robotsFile);
+
+            if (!file_exists($dir)) {
+                mkdir($dir, 0777, true);
+            }
 
             $body = (string) $response->getBody();
             $this->logger->info($body);

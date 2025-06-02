@@ -94,6 +94,13 @@ class Sitemap extends Helper
             // parse sub-sitemaps
             foreach ($urls as $url) {
                 $response = $this->client->download($this->client->createRequest($url));
+
+                $status = $response->getStatusCode();
+
+                if ($status !== 200) {
+                    throw new RuntimeException("download - {$status} - {$url}");
+                }
+
                 $page = $this->decompressResponse($response);
 
                 // save sub-sitemap
