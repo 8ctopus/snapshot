@@ -277,8 +277,8 @@ class Router
                 $data .= "canonical: {$row['canonical']}\n";
                 $data .= "title: {$row['title']}\n";
                 $data .= "description: {$row['description']}\n";
-                $data .= "robots: {$row['robots-short']}\n";
-                $data .= "robots: {$row['robots']}\n";
+                $data .= "robots-short: {$row['robots-short']}\n";
+                //$data .= "robots: {$row['robots']}\n";
                 $data .= str_repeat('-', 80) . "\n";
             }
 
