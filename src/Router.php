@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Oct8pus\Snapshot;
 
 use Apix\Log\Logger;
+use Clue\Commander\NoRouteFoundException;
 use Clue\Commander\Router as CommanderRouter;
 use DiDom\Document;
 use HttpSoft\Message\Request;
@@ -350,7 +351,12 @@ class Router
             }
 
             $input = explode(' ', "dummy {$input}");
-            $this->router->handleArgv($input);
+
+            try {
+                $this->router->handleArgv($input);
+            } catch (NoRouteFoundException $exception) {
+                $this->logger->error($exception->getMessage());
+            }
         }
     }
 
