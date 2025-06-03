@@ -198,7 +198,7 @@ class Router
                     }
 
                     // keep only internal links
-                    if (!str_starts_with($href, $this->host) || $href === $this->host) {
+                    if (!str_starts_with($href, "https://{$this->host}") || $href === "https://{$this->host}") {
                         continue;
                     }
 
