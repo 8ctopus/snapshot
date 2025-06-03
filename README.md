@@ -18,31 +18,38 @@ _NOTE_: This is the result of a day of vibe coding in cursor, so it's experiment
 php index.php
 
 # set target website
-host example.com
+> host example.com
 
 # download robots.txt
-robots
+> robots
+User-Agent: *
+Sitemap: https://example.com/sitemap.xml
+
+1 sitemaps found
 
 # download sitemap
-sitemap
+> sitemap
+149 links stashed
 
 # take a snapshot of all pages in sitemap
-snapshot
+> snapshot
+149 pages
 
 # snapshot specific pages (relative path)
-snapshot /page1 /page2
+> snapshot /page1 /page2
+2 pages
 
 # discover hidden pages not in sitemap (noindex)
-discover hidden
+> discover hidden
+16 hidden links stashed
 
 # snapshot hidden pages
-snapshot
+> snapshot
+16 pages
 
 # extract SEO information (see seo.txt in snapshot dir)
 extract seo
-
-# delete all snapshots
-clear
+SEO extracted
 ```
 
 ## Output
