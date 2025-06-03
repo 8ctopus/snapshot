@@ -316,9 +316,53 @@ class Router
                     'search' => "~This site is optimized with the Yoast SEO plugin v\d{2}\.\d{1,2}~",
                     'replace' => "This site is optimized with the Yoast SEO plugin v0.0",
                 ],
-                'images' => [
-                    'search' => "~<img decoding=\"async\"~",
-                    'replace' => '<img loading="lazy" decoding="async"',
+                'seo-framework' => [
+                    'search' => "~<!-- / The SEO Framework by Sybre Waaijer \| \d{1,2}\.\d{1,2}ms meta \| \d{1,2}\.\d{1,2}ms boot -->~",
+                    'replace' => "<!-- / The SEO Framework by Sybre Waaijer | 0.0ms meta | 0.0ms boot -->"
+                ],
+                'classicpress-site' => [
+                    'search' => '~<body class="(.*?)wp-singular page-template-default page (page-id-\d{1,4}) wp-theme-studio">~',
+                    'replace' => '<body class="$1page-template-default page $2">',
+                ],
+                'classicpress-support' => [
+                    'search' => '~<body class="wp-singular post-template-default single single-post postid-(\d{1,4}) single-format-standard wp-theme-support">~',
+                    'replace' => '<body class="post-template-default single single-post postid-$1 single-format-standard">',
+                ],
+                'classicpress-support-2' => [
+                    'search' => '~<body class="archive category category-(.*?) category-(\d{1,4}) wp-theme-support">~',
+                    'replace' => '<body class="archive category category-$1 category-$2">',
+                ],
+                'classicpress-2' => [
+                    'search' => "~ type='text/css'~",
+                    'replace' => '',
+                ],
+                'classicpress-3' => [
+                    'search' => '~ type="text/javascript"~',
+                    'replace' => '',
+                ],
+                'classicpress-4' => [
+                    'search' => "~(<link rel='(?:stylesheet|dns-prefetch)' .*?)/>~",
+                    'replace' => '$1>',
+                ],
+                'classicpress-5' => [
+                    'search' => '~<script src="(.*?)" id="(.*?)">~',
+                    'replace' => "<script src='$1' id='$2'>",
+                ],
+                'classicpress-6' => [
+                    'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
+                    'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
+                ],
+                'classicpress-7' => [
+                    'search' => '~<img loading="lazy" decoding="async"~',
+                    'replace' => '<img decoding="async" loading="lazy"',
+                ],
+                'classicpress-8' => [
+                    'search' => '~<img fetchpriority="high" decoding="async"~',
+                    'replace' => '<img decoding="async" fetchpriority="high"',
+                ],
+                'classicpress-9' => [
+                    'search' => '~<img (.*?)\/>~',
+                    'replace' => '<img $1>',
                 ],
             ];
 
@@ -348,6 +392,25 @@ class Router
                     file_put_contents($file->getPathname(), $updated);
                 }
             }
+        });
+
+        $this->router->add('restore backup', function () : void {
+            $iterator = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($this->snapshotDir)
+            );
+
+            foreach ($iterator as $file) {
+                if (!$file->isFile() || $file->getExtension() !== 'bak') {
+                    continue;
+                }
+
+                $backup = $file->getPathname();
+                $restore = str_replace('.bak', '', $backup);
+
+                rename($backup, $restore);
+            }
+
+            $this->logger->info('backup restored');
         });
 
         $this->router->add('clear', function () : void {
