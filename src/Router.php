@@ -316,6 +316,10 @@ class Router
                     'search' => "~This site is optimized with the Yoast SEO plugin v\d{2}\.\d{1,2}~",
                     'replace' => "This site is optimized with the Yoast SEO plugin v0.0",
                 ],
+                'images' => [
+                    'search' => "~<img decoding=\"async\"~",
+                    'replace' => '<img loading="lazy" decoding="async"',
+                ],
             ];
 
             $iterator = new RecursiveIteratorIterator(
