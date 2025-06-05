@@ -12,6 +12,7 @@ use HttpSoft\Message\Request;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use RuntimeException;
+use ValueError;
 
 class Router
 {
@@ -178,7 +179,7 @@ class Router
                     continue;
                 }
 
-                $document = new Document(file_get_contents($file->getPathname()));
+                $document = new Document($file->getPathname(), true);
                 $links = $document->find('a[href]');
 
                 foreach ($links as $link) {
@@ -248,7 +249,11 @@ class Router
                     continue;
                 }
 
-                $document = new Document(file_get_contents($file->getPathname()));
+                try {
+                    $document = new Document($file->getPathname(), true);
+                } catch (ValueError $exception) {
+                    $this->logger?->error($file->getPathname() . ' - ' . $exception->getMessage());
+                }
 
                 $title = $document->first('title')?->text() ?? 'N/A';
                 $description = $document->first('meta[name="description"]')?->getAttribute('content') ?? 'N/A';
