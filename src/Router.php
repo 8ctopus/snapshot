@@ -286,6 +286,27 @@ class Router
             $this->logger->info('SEO extracted');
         });
 
+        $this->router->add('import <file>', function ($args) : void {
+            if (!isset($this->host)) {
+                $this->logger->error('set host first');
+                return;
+            }
+
+            $content = file_get_contents($args['file']);
+
+            $files = explode("\n", rtrim($content));
+
+            $this->stashedUrls = [];
+
+            foreach ($files as $url) {
+                $this->stashedUrls[] = "https://{$this->host}{$url}";
+            }
+
+            $count = count($files);
+
+            $this->logger->info("{$count} stashed");
+        });
+
         $this->router->add('select <snapshot>', function ($args) : void {
             $name = $args['snapshot'];
 
