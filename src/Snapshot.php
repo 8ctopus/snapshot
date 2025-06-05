@@ -47,18 +47,19 @@ class Snapshot extends Helper
         $request = $this->client->createRequest($url);
         $response = $this->client->download($request);
 
-        $status = $response->getStatusCode();
-
-        if ($status !== 200) {
-            $this->logger->error("{$status} - {$url}");
-            return false;
-        }
 
         $filename = $this->getFilename($url, 'json');
 
         $this->saveSnapshot($url, $filename, $request, $response);
 
-        return true;
+        $status = $response->getStatusCode();
+
+        if ($status === 200) {
+            return true;
+        }
+
+        $this->logger->error("{$status} - {$url}");
+        return false;
     }
 
     /**
