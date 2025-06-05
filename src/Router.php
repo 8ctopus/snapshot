@@ -320,6 +320,11 @@ class Router
                     'search' => "~<!-- / The SEO Framework by Sybre Waaijer \| \d{1,2}\.\d{1,2}ms meta \| \d{1,2}\.\d{1,2}ms boot -->~",
                     'replace' => "<!-- / The SEO Framework by Sybre Waaijer | 0.0ms meta | 0.0ms boot -->"
                 ],
+                'gravatar' => [
+                    'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
+                    'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
+                ],
+                /* REM
                 'classicpress-site' => [
                     'search' => '~<body class="(.*?)wp-singular page-template-default page (page-id-\d{1,4}) wp-theme-studio">~',
                     'replace' => '<body class="$1page-template-default page $2">',
@@ -348,10 +353,6 @@ class Router
                     'search' => '~<script src="(.*?)" id="(.*?)">~',
                     'replace' => "<script src='$1' id='$2'>",
                 ],
-                'classicpress-6' => [
-                    'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
-                    'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
-                ],
                 'classicpress-7' => [
                     'search' => '~<img loading="lazy" decoding="async"~',
                     'replace' => '<img decoding="async" loading="lazy"',
@@ -364,6 +365,7 @@ class Router
                     'search' => '~<img (.*?)\/>~',
                     'replace' => '<img $1>',
                 ],
+                */
             ];
 
             $iterator = new RecursiveIteratorIterator(
