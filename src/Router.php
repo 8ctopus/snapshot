@@ -350,6 +350,10 @@ class Router
                     'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
                     'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
                 ],
+                'wordpress-version' => [
+                    'search' => '~\?ver=\d{10}~',
+                    'replace' => '?ver=0000000000',
+                ],
                 /* REM
                 'classicpress-site' => [
                     'search' => '~<body class="(.*?)wp-singular page-template-default page (page-id-\d{1,4}) wp-theme-studio">~',
