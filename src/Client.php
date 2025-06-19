@@ -13,13 +13,13 @@ use Psr\Http\Message\ResponseInterface;
 
 class Client
 {
-    private readonly string $cacheBusting;
+    private readonly string $cacheBustingQuery;
     private readonly ClientInterface $client;
 
-    public function __construct(array $options, string $cacheBusting)
+    public function __construct(array $options, string $cacheBustingQuery)
     {
         $default = [];
-        $this->cacheBusting = $cacheBusting;
+        $this->cacheBustingQuery = $cacheBustingQuery;
 
         $this->client = new Shuttle(new CurlHandler($default + $options));
     }
@@ -31,7 +31,9 @@ class Client
 
     public function createRequest(string $url) : RequestInterface
     {
-        $url .= $this->cacheBusting;
+        // FIX ME fragment #
+        $url .= str_contains($url, '?') ? '&' : '?';
+        $url .= $this->cacheBustingQuery;
 
         return (new Request('GET', $url))
             ->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')

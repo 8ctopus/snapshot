@@ -49,7 +49,7 @@ class Router
         ];
 
         // FIX ME - move to setting somewhere
-        $this->client = new Client($options, '?nocache');
+        $this->client = new Client($options, 'nocache');
     }
 
     public function setupRoutes() : self
