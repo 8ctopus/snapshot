@@ -253,6 +253,7 @@ class Router
                     $document = new Document($file->getPathname(), true);
                 } catch (ValueError $exception) {
                     $this->logger?->error($file->getPathname() . ' - ' . $exception->getMessage());
+                    continue;
                 }
 
                 $title = $document->first('title')?->text() ?? 'N/A';
