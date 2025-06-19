@@ -82,6 +82,11 @@ class Snapshot extends Helper
         $extension = $this->getFileExtension($type);
         $contentFile = basename($filename, '.json') . '.' . $extension;
 
+        $responseHeaders = $response->getHeaders();
+        $responseHeaders['Date'] = 'redacted';
+        $responseHeaders['Content-Length'] = 'redacted';
+        $responseHeaders['Keep-Alive'] = 'redacted';
+
         $headers = [
             'url' => $url,
             'request' => [
@@ -91,7 +96,7 @@ class Snapshot extends Helper
             ],
             'response' => [
                 'status' => $response->getStatusCode(),
-                'headers' => $response->getHeaders(),
+                'headers' => $responseHeaders,
                 'contentFile' => $contentFile,
             ],
         ];
