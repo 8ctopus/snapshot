@@ -61,6 +61,10 @@ class Helper
         $path = parse_url($url, PHP_URL_PATH);
         $path = $this->urlToPath($path);
 
+        if (str_ends_with($path, ".{$extension}")) {
+            $path = substr($path, 0, - strlen($extension) -1);
+        }
+
         $query = parse_url($url, PHP_URL_QUERY);
 
         if (!empty($query)) {
