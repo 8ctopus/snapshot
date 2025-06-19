@@ -61,13 +61,13 @@ class Helper
         $path = parse_url($url, PHP_URL_PATH);
         $path = $this->urlToPath($path);
 
-        $extension = ".{$extension}";
+        $query = parse_url($url, PHP_URL_QUERY);
 
-        if (str_ends_with($path, $extension)) {
-            $extension = '';
+        if (!empty($query)) {
+            $query = "[{$query}]";
         }
 
-        return "{$this->outputDir}/pages/{$path}{$extension}";
+        return "{$this->outputDir}/pages/{$path}{$query}.{$extension}";
     }
 
     /**
