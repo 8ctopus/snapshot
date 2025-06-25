@@ -397,6 +397,22 @@ class Router
                     'replace' => '<img $1>',
                 ],
                 */
+                'algolia' => [
+                    'search' => '~var algolia = 1;~',
+                    'replace' => 'var algolia = 0;',
+                ],
+                'w3-total-cache' => [
+                    'search' => '~<!--\s*Performance optimized by W3 Total Cache[\s\S]*?-->~',
+                    'replace' => '',
+                ],
+                'csfr-token' => [
+                    'search' => '~<meta name="csrf-token" content=".*?">~',
+                    'replace' => '<meta name="csrf-token" content="token">',
+                ],
+                'end-of-file' => [
+                    'search' => '~</html>\r?\n~',
+                    'replace' => '</html>',
+                ],
             ];
 
             $iterator = new RecursiveIteratorIterator(
