@@ -218,6 +218,11 @@ class Router
                 foreach ($links as $link) {
                     $href = $link->getAttribute('href');
 
+                    // keep only internal links
+                    if (!str_starts_with($href, "https://{$this->host}") || $href === "https://{$this->host}") {
+                        continue;
+                    }
+
                     if (in_array($href, $this->stashedUrls, true)) {
                         continue;
                     }
