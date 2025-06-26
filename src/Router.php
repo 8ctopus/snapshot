@@ -206,6 +206,11 @@ class Router
                         continue;
                     }
 
+                    // ignore extensions
+                    if (preg_match('/\.\w{3,4}$/', $href) === 1) {
+                        continue;
+                    }
+
                     if (in_array($href, $this->stashedUrls, true)) {
                         continue;
                     }
