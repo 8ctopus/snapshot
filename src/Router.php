@@ -193,8 +193,11 @@ class Router
                         continue;
                     }
 
-                    // convert relative URLs to absolute
-                    if ($href[0] === '/') {
+                    if (str_starts_with($href, '//')) {
+                        // convert protocol relative urls
+                        $href = "https:{$href}";
+                    } elseif ($href[0] === '/') {
+                        // convert relative URLs to absolute
                         $href = "https://{$this->host}{$href}";
                     }
 
