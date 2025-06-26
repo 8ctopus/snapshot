@@ -374,7 +374,7 @@ class Router
                     'replace' => "<!-- / The SEO Framework by Sybre Waaijer | 0.0ms meta | 0.0ms boot -->"
                 ],
                 'seo-framework-full-remove' => [
-                    'search' => '~<!-- / The SEO Framework by Sybre Waaijer .*?-->~',
+                    'search' => '~<!-- /? ?The SEO Framework by Sybre Waaijer .*?-->~',
                     'replace' => '',
                 ],
                 'gravatar-clean' => [
