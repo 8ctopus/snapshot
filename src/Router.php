@@ -413,6 +413,18 @@ class Router
                     'search' => '~</html>\r?\n~',
                     'replace' => '</html>',
                 ],
+                'yoast-full-remove-1' => [
+                    'search' => '~<!-- This site is optimized with the Yoast SEO plugin v0\.0 - .*? -->~',
+                    'replace' => '',
+                ],
+                'yoast-full-remove-2' => [
+                    'search' => '~<!-- / Yoast SEO plugin\. -->~',
+                    'replace' => '',
+                ],
+                'seo-framework-full-remove' => [
+                    'search' => '~<!-- The SEO Framework by Sybre Waaijer -->~',
+                    'replace' => '',
+                ],
             ];
 
             $iterator = new RecursiveIteratorIterator(
