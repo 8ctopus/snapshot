@@ -306,7 +306,7 @@ class Router
                 return;
             }
 
-            $content = file_get_contents($args['file']);
+            $content = file_get_contents(__DIR__ . "/extra/{$args['file']}");
 
             $files = explode("\n", rtrim($content));
 
