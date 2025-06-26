@@ -381,6 +381,10 @@ class Router
                     'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
                     'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
                 ],
+                'nonce-clean' => [
+                    'search' => '~data-nonce="(\w{10})"~',
+                    'replace' => 'data-nonce="0000000000"',
+                ],
                 'wordpress-cache-busting' => [
                     'search' => '~\?ver=\d{10}~',
                     'replace' => '?ver=0000000000',
