@@ -335,27 +335,61 @@ class Router
 
         $this->router->add('clean', function () : void {
             $rules = [
-                'cache-enabler' => [
+                'w3-total-cache-clean' => [
+                    'search' => '~<!--\s*Performance optimized by W3 Total Cache[\s\S]*?-->~',
+                    'replace' => '<!-- Performance optimized by W3 Total Cache -->',
+                ],
+                'cache-enabler-clean' => [
+                    'search' => "~<!-- Cache Enabler by KeyCDN @ .*? -->~",
+                    'replace' => '<!-- Cache Enabler by KeyCDN ... -->',
+                ],
+                /*
+                'cache-enabler-full-remove' => [
                     'search' => "~<!-- Cache Enabler by KeyCDN @ \w{3}, \d{2} May 202\d{1} \d{2}:\d{2}:\d{2} GMT \(https-index\.html\.gz\) -->~",
                     'replace' => '',
                 ],
-                'yoast' => [
+                */
+                'yoast-clean' => [
                     'search' => "~This site is optimized with the Yoast SEO plugin v\d{2}\.\d{1,2}~",
                     'replace' => "This site is optimized with the Yoast SEO plugin v0.0",
                 ],
-                'seo-framework' => [
+                'yoast-full-remove-1' => [
+                    'search' => '~<!-- This site is optimized with the Yoast SEO plugin v0\.0 - .*? -->~',
+                    'replace' => '',
+                ],
+                'yoast-full-remove-2' => [
+                    'search' => '~<!-- / Yoast SEO plugin\. -->~',
+                    'replace' => '',
+                ],
+                'seo-framework-clean' => [
                     'search' => "~<!-- / The SEO Framework by Sybre Waaijer \| \d{1,2}\.\d{1,2}ms meta \| \d{1,2}\.\d{1,2}ms boot -->~",
                     'replace' => "<!-- / The SEO Framework by Sybre Waaijer | 0.0ms meta | 0.0ms boot -->"
                 ],
-                'gravatar' => [
+                'seo-framework-full-remove' => [
+                    'search' => '~<!-- The SEO Framework by Sybre Waaijer -->~',
+                    'replace' => '',
+                ],
+                'gravatar-clean' => [
                     'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
                     'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
                 ],
-                'wordpress-version' => [
+                'wordpress-cache-busting' => [
                     'search' => '~\?ver=\d{10}~',
                     'replace' => '?ver=0000000000',
                 ],
+                'csfr-token' => [
+                    'search' => '~<meta name="csrf-token" content=".*?">~',
+                    'replace' => '<meta name="csrf-token" content="token">',
+                ],
+                'clean-end-of-file' => [
+                    'search' => '~</html>\r?\n~',
+                    'replace' => '</html>',
+                ],
                 /* REM
+                'algolia-clean' => [
+                    'search' => '~var algolia = 1;~',
+                    'replace' => 'var algolia = 0;',
+                ],
                 'classicpress-site' => [
                     'search' => '~<body class="(.*?)wp-singular page-template-default page (page-id-\d{1,4}) wp-theme-studio">~',
                     'replace' => '<body class="$1page-template-default page $2">',
@@ -397,34 +431,6 @@ class Router
                     'replace' => '<img $1>',
                 ],
                 */
-                'algolia' => [
-                    'search' => '~var algolia = 1;~',
-                    'replace' => 'var algolia = 0;',
-                ],
-                'w3-total-cache' => [
-                    'search' => '~<!--\s*Performance optimized by W3 Total Cache[\s\S]*?-->~',
-                    'replace' => '',
-                ],
-                'csfr-token' => [
-                    'search' => '~<meta name="csrf-token" content=".*?">~',
-                    'replace' => '<meta name="csrf-token" content="token">',
-                ],
-                'end-of-file' => [
-                    'search' => '~</html>\r?\n~',
-                    'replace' => '</html>',
-                ],
-                'yoast-full-remove-1' => [
-                    'search' => '~<!-- This site is optimized with the Yoast SEO plugin v0\.0 - .*? -->~',
-                    'replace' => '',
-                ],
-                'yoast-full-remove-2' => [
-                    'search' => '~<!-- / Yoast SEO plugin\. -->~',
-                    'replace' => '',
-                ],
-                'seo-framework-full-remove' => [
-                    'search' => '~<!-- The SEO Framework by Sybre Waaijer -->~',
-                    'replace' => '',
-                ],
             ];
 
             $iterator = new RecursiveIteratorIterator(
