@@ -367,7 +367,7 @@ class Router
             $rules = [
                 'w3-total-cache-clean' => [
                     'search' => '~<!--\s*Performance optimized by W3 Total Cache[\s\S]*?-->~',
-                    'replace' => '<!-- Performance optimized by W3 Total Cache -->',
+                    'replace' => '',
                 ],
                 'cache-enabler-clean' => [
                     'search' => "~<!-- Cache Enabler by KeyCDN @ .*? -->~",
@@ -436,6 +436,7 @@ class Router
                     'search' => '~<body class="archive category category-(.*?) category-(\d{1,4}) wp-theme-support">~',
                     'replace' => '<body class="archive category category-$1 category-$2">',
                 ],
+                */
                 'classicpress-2' => [
                     'search' => "~ type='text/css'~",
                     'replace' => '',
@@ -449,22 +450,77 @@ class Router
                     'replace' => '$1>',
                 ],
                 'classicpress-5' => [
-                    'search' => '~<script src="(.*?)" id="(.*?)">~',
-                    'replace' => "<script src='$1' id='$2'>",
+                    'search' => '~<script(.*?)src="(.*?)" id="(.*?)"~',
+                    'replace' => "<script$1src='$2' id='$3'",
                 ],
-                'classicpress-7' => [
+                'classicpress-5-bis' => [
+                    'search' => '~<script id="(.*?)">~',
+                    'replace' => "<script id='$1'>",
+                ],
+                'classicpress-6' => [
                     'search' => '~<img loading="lazy" decoding="async"~',
                     'replace' => '<img decoding="async" loading="lazy"',
                 ],
-                'classicpress-8' => [
+                'classicpress-7' => [
                     'search' => '~<img fetchpriority="high" decoding="async"~',
                     'replace' => '<img decoding="async" fetchpriority="high"',
                 ],
-                'classicpress-9' => [
-                    'search' => '~<img (.*?)\/>~',
+                'classicpress-8' => [
+                    'search' => '~<img (.*?)\/>~s',
                     'replace' => '<img $1>',
                 ],
-                */
+                'classicpress-9' => [
+                    'search' => '~^\t<style>img:is\(\[sizes="auto" i\], \[sizes\^="auto," i\]\) { contain-intrinsic-size: 3000px 1500px }</style>\r?\n~m',
+                    'replace' => '',
+                ],
+                'classicpress-10' => [
+                    'search' => "~<style id='global-styles-inline-css'>.*?</style>~s",
+                    'replace' => '',
+                ],
+                'classicpress-11' => [
+                    'search' => '~<script type="speculationrules">.*?</script>~s',
+                    'replace' => '',
+                ],
+                'classicpress-12' => [
+                    'search' => '~sizes="auto, ~',
+                    'replace' => 'sizes="',
+                ],
+                'classicpress-13' => [
+                    'search' => "~<meta name='robots' content='(.*?)' />~",
+                    'replace' => "<meta name='robots' content='$1'>",
+                ],
+                'classicpress-14' => [
+                    'search' => "~<br />~",
+                    'replace' => "<br>",
+                ],
+                'classicpress-14-bis' => [
+                    'search' => "~<hr />~",
+                    'replace' => "<hr>",
+                ],
+                'classicpress-15' => [
+                    'search' => '~/\* <!\[CDATA\[ \*/\r?\n~',
+                    'replace' => '',
+                ],
+                'classicpress-16' => [
+                    'search' => '~/\* \]\]> \*/\r?\n~',
+                    'replace' => '',
+                ],
+                'classicpress-17' => [
+                    'search' => '~</footer>(\r?\n)\r?\n<script defer~s',
+                    'replace' => '</footer>$1<script defer',
+                ],
+                'classicpress-18' => [
+                    'search' => '~\?ver=(6\.8\.1|cp_186010fd)~',
+                    'replace' => '?ver=redacted',
+                ],
+                'classicpress-site' => [
+                    'search' => '~<body(.*?) class="(home )?(?:wp-singular )?(.*?) wp-theme-.*?">~',
+                    'replace' => '<body$1 class="$2$3">',
+                ],
+                'classicpress-gravatar' => [
+                    'search' => "~height='120' width='120' decoding='async'>~",
+                    'replace' => "height='120' width='120' loading='lazy' decoding='async'>",
+                ],
             ];
 
             $iterator = new RecursiveIteratorIterator(
