@@ -365,10 +365,12 @@ class Router
 
         $this->router->add('clean', function () : void {
             $rules = [
+                /*
                 'w3-total-cache-clean' => [
                     'search' => '~<!--\s*Performance optimized by W3 Total Cache[\s\S]*?-->~',
                     'replace' => '',
                 ],
+                */
                 'cache-enabler-clean' => [
                     'search' => "~<!-- Cache Enabler by KeyCDN @ .*? -->~",
                     'replace' => '<!-- Cache Enabler by KeyCDN ... -->',
@@ -379,6 +381,7 @@ class Router
                     'replace' => '',
                 ],
                 */
+                /*
                 'yoast-clean' => [
                     'search' => "~This site is optimized with the Yoast SEO plugin v\d{2}\.\d{1,2}~",
                     'replace' => "This site is optimized with the Yoast SEO plugin v0.0",
@@ -391,10 +394,12 @@ class Router
                     'search' => '~<!-- / Yoast SEO plugin\. -->~',
                     'replace' => '',
                 ],
+                */
                 'seo-framework-clean' => [
                     'search' => "~<!-- / The SEO Framework by Sybre Waaijer \| \d{1,2}\.\d{1,2}ms meta \| \d{1,2}\.\d{1,2}ms boot -->~",
                     'replace' => "<!-- / The SEO Framework by Sybre Waaijer | 0.0ms meta | 0.0ms boot -->"
                 ],
+                /*
                 'seo-framework-full-remove' => [
                     'search' => '~<!-- /? ?The SEO Framework by Sybre Waaijer .*?-->~',
                     'replace' => '',
@@ -419,6 +424,7 @@ class Router
                     'search' => '~</html>\r?\n~',
                     'replace' => '</html>',
                 ],
+                */
                 /* REM
                 'algolia-clean' => [
                     'search' => '~var algolia = 1;~',
@@ -437,6 +443,7 @@ class Router
                     'replace' => '<body class="archive category category-$1 category-$2">',
                 ],
                 */
+                /*
                 'classicpress-2' => [
                     'search' => "~ type='text/css'~",
                     'replace' => '',
@@ -497,18 +504,16 @@ class Router
                     'search' => "~<hr />~",
                     'replace' => "<hr>",
                 ],
-                'classicpress-15' => [
-                    'search' => '~/\* <!\[CDATA\[ \*/\r?\n~',
-                    'replace' => '',
-                ],
-                'classicpress-16' => [
-                    'search' => '~/\* \]\]> \*/\r?\n~',
-                    'replace' => '',
-                ],
-                'classicpress-17' => [
-                    'search' => '~</footer>(\r?\n)\r?\n<script defer~s',
-                    'replace' => '</footer>$1<script defer',
-                ],
+                */
+//                'classicpress-15' => [
+//                    'search' => '~/\* <!\[CDATA\[ \*/\r?\n~',
+//                    'replace' => '',
+//                ],
+//                'classicpress-16' => [
+//                    'search' => '~/\* \]\]> \*/\r?\n~',
+//                    'replace' => '',
+//                ],
+                /*
                 'classicpress-18' => [
                     'search' => '~\?ver=(6\.8\.1|cp_186010fd)~',
                     'replace' => '?ver=redacted',
@@ -521,6 +526,19 @@ class Router
                     'search' => "~height='120' width='120' decoding='async'>~",
                     'replace' => "height='120' width='120' loading='lazy' decoding='async'>",
                 ],
+                'classicpress-19' => [
+                    'search' => "~<style id='core-block-supports-inline-css'>.*?</style>~s",
+                    'replace' => '',
+                ],
+                'classicpress-17' => [
+                    'search' => '~</footer>(\r?\n)*\r?\n<script defer~s',
+                    'replace' => '</footer>$1<script defer',
+                ],
+                'classicpress-20' => [
+                    'search' => '~<meta itemprop="(.*?)" content="(.*?)" />~s',
+                    'replace' => '<meta itemprop="$1" content="$2" >',
+                ],
+                */
             ];
 
             $iterator = new RecursiveIteratorIterator(
