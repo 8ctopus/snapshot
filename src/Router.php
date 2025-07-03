@@ -205,6 +205,7 @@ class Router
 
             $candidates = array_unique($candidates);
             sort($candidates);
+
             $hidden = [];
 
             foreach ($candidates as $candidate) {
@@ -238,8 +239,14 @@ class Router
                     continue;
                 }
 
+                if (in_array($href, $hidden, true)) {
+                    continue;
+                }
+
                 $hidden[] = $href;
             }
+
+            sort($hidden);
 
             $this->stashedUrls = $hidden;
 
