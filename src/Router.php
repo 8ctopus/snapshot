@@ -172,7 +172,7 @@ class Router
                 new RecursiveDirectoryIterator($this->snapshotDir)
             );
 
-            $hidden = [];
+            $candidates = [];
 
             foreach ($iterator as $file) {
                 if (!$file->isFile() || $file->getExtension() !== 'html') {
@@ -180,81 +180,67 @@ class Router
                 }
 
                 $document = new Document($file->getPathname(), true);
+
                 $links = $document->find('a[href]');
 
                 foreach ($links as $link) {
                     $href = $link->getAttribute('href');
-
-                    // remove query string and anchor
-                    $href = preg_replace('/#.*$/', '', $href);
-                    $href = preg_replace('/\?.*$/', '', $href);
-
-                    if (empty($href)) {
-                        continue;
-                    }
-
-                    if (str_starts_with($href, '//')) {
-                        // convert protocol relative urls
-                        $href = "https:{$href}";
-                    } elseif ($href[0] === '/') {
-                        // convert relative URLs to absolute
-                        $href = "https://{$this->host}{$href}";
-                    }
-
-                    // keep only internal links
-                    if (!str_starts_with($href, "https://{$this->host}") || $href === "https://{$this->host}") {
-                        continue;
-                    }
-
-                    // ignore extensions
-                    if (preg_match('/\.\w{3,4}$/', $href) === 1) {
-                        continue;
-                    }
-
-                    if (in_array($href, $this->stashedUrls, true)) {
-                        continue;
-                    }
-
-                    $hidden[] = $href;
+                    $candidates[] = $href;
                 }
 
                 $links = $document->find('link[rel="alternate"]');
 
                 foreach ($links as $link) {
                     $href = $link->getAttribute('href');
-
-                    // keep only internal links
-                    if (!str_starts_with($href, "https://{$this->host}") || $href === "https://{$this->host}") {
-                        continue;
-                    }
-
-                    if (in_array($href, $this->stashedUrls, true)) {
-                        continue;
-                    }
-
-                    $hidden[] = $href;
+                    $candidates[] = $href;
                 }
 
                 $links = $document->find('link[rel="next"]');
 
                 foreach ($links as $link) {
                     $href = $link->getAttribute('href');
-
-                    // keep only internal links
-                    if (!str_starts_with($href, "https://{$this->host}") || $href === "https://{$this->host}") {
-                        continue;
-                    }
-
-                    if (in_array($href, $this->stashedUrls, true)) {
-                        continue;
-                    }
-
-                    $hidden[] = $href;
+                    $candidates[] = $href;
                 }
             }
 
-            $hidden = array_unique($hidden);
-            sort($hidden);
+            $candidates = array_unique($candidates);
+            sort($candidates);
+            $hidden = [];
+
+            foreach ($candidates as $candidate) {
+                // remove query string and anchor
+                $href = preg_replace('/#.*$/', '', $candidate);
+                $href = preg_replace('/\?.*$/', '', $href);
+
+                if (empty($href)) {
+                    continue;
+                }
+
+                if (str_starts_with($href, '//')) {
+                    // convert protocol relative urls
+                    $href = "https:{$href}";
+                } elseif ($href[0] === '/') {
+                    // convert relative URLs to absolute
+                    $href = "https://{$this->host}{$href}";
+                }
+
+                // keep only internal links
+                if (!str_starts_with($href, "https://{$this->host}") || $href === "https://{$this->host}") {
+                    continue;
+                }
+
+                // ignore extensions
+                if (preg_match('/\.\w{3,4}$/', $href) === 1) {
+                    continue;
+                }
+
+                if (in_array($href, $this->stashedUrls, true)) {
+                    continue;
+                }
+
+                $hidden[] = $href;
+            }
+
             $this->stashedUrls = $hidden;
 
             $count = count($hidden);
