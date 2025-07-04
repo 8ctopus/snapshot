@@ -224,7 +224,7 @@ class Router
                 $href = $reference->resolve($candidate);
 
                 // keep only internal links
-                if ($href->domain() !== $this->host) {
+                if ($href->host() !== $this->host) {
                     continue;
                 }
 
