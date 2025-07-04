@@ -59,7 +59,7 @@ class Helper
     protected function getFilename(string $url, string $extension) : string
     {
         $path = parse_url($url, PHP_URL_PATH);
-        $path = $this->urlToPath($path);
+        $path = $this->urlToPath($path ?? '');
 
         if (str_ends_with($path, ".{$extension}")) {
             $path = substr($path, 0, - strlen($extension) -1);
