@@ -228,6 +228,9 @@ class Router
                     continue;
                 }
 
+                // strip fragment
+                $href->fragment('');
+
                 if (in_array($href->toString(), $this->stashedUrls, true)) {
                     continue;
                 }
