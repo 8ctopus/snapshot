@@ -232,7 +232,9 @@ class Router
                 // strip fragment
                 $href->fragment('');
 
-                if (in_array($href->toString(), $this->stashedUrls, true)) {
+                $href = $href->toString();
+
+                if (in_array($href, $this->stashedUrls, true)) {
                     continue;
                 }
 
