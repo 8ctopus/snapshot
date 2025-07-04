@@ -79,7 +79,7 @@ class Snapshot extends Helper
 
         $type = $response->getHeaderLine('content-type');
         $extension = $this->getFileExtension($type);
-        $contentFile = basename($filename, '.json') . '.' . $extension;
+        $contentFile = basename($filename, '.json') . ".{$extension}";
 
         $responseHeaders = $response->getHeaders();
         $responseHeaders['Date'] = 'redacted';
