@@ -241,6 +241,10 @@ class Router
 
                 // strip fragment
                 $href->fragment('');
+                $query = $href->queryString();
+
+                // strip nocache if present
+                $query->remove('nocache');
 
                 $href = $href->toString();
 
