@@ -1,6 +1,6 @@
 # snapshot
 
-A command-line tool for analyzing and archiving websites. It helps you discover, analyze, and save website content, including hidden pages and SEO information.
+A command-line tool for analyzing and archiving websites. It helps you discover, analyze, and save website content, including hidden pages and SEO information. I use it to compare the whole website when I do source code changes impacting a lot of different places.
 
 _NOTE_: This is the result of a day of vibe coding in cursor, so it's experimental.
 
@@ -11,6 +11,7 @@ _NOTE_: This is the result of a day of vibe coding in cursor, so it's experiment
 - Sitemap Analysis: Parse and analyze website sitemaps
 - Hidden Page Discovery: Find internal links not listed in the sitemap
 - SEO Analysis: Extract and analyze SEO metadata from pages
+- Cleaning: Clean website pages using regular expressions so they can be compared
 
 ## Usage
 
