@@ -1,17 +1,17 @@
 # snapshot
 
-A command-line tool for analyzing and archiving websites. It helps you discover, analyze, and save website content, including hidden pages and SEO information. I use it to compare the whole website when I do source code changes impacting a lot of different places.
+**snapshot** is a powerful and experimental command-line tool for analyzing and archiving entire websites. Effortlessly discover, analyze, and save website content, including SEO metadata, all from your terminal. Whether you’re tracking changes after a major code update or auditing a site's structure, snapshot makes it easy to compare and preserve web content.
 
-_NOTE_: This is the result of a day of vibe coding in cursor, so it's experimental.
+_Note:_ This project was created in a single day of inspired coding and is still experimental.
 
 ## Features
 
-- Website Snapshot: Download and save website pages locally
-- Robots.txt Analysis: Download and analyze robots.txt files
-- Sitemap Analysis: Parse and analyze website sitemaps
-- Hidden Page Discovery: Find internal links not listed in the sitemap
-- SEO Analysis: Extract and analyze SEO metadata from pages
-- Cleaning: Clean website pages using regular expressions so they can be compared
+- **Website Archiving:** Download and locally save complete websites or selected pages.
+- **Robots.txt Analysis:** Fetch and inspect robots.txt files for crawling rules.
+- **Sitemap Parsing:** Extract and analyze all URLs listed in a site's sitemap.
+- **Hidden Page Discovery:** Uncover internal links not listed in sitemaps.
+- **SEO Metadata Extraction:** Gather and review SEO-relevant data from every page.
+- **Content Cleaning:** Use regex-based cleaning to prepare pages for accurate comparison.
 
 ## Usage
 
