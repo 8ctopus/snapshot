@@ -27,6 +27,7 @@ class Router
     private string $snapshotDir;
     private Snapshot $snapshot;
     private Sitemap $sitemap;
+    private array $scannedUrls;
     private array $stashedUrls;
     private array $stashedSitemaps;
 
@@ -67,6 +68,7 @@ class Router
 
         $this->router->add('host <host>', function ($args) : void {
             $this->host = $args['host'];
+            $this->scannedUrls = [];
             $this->stashedUrls = [];
 
             $name = $this->input('snapshot name');
@@ -165,6 +167,8 @@ class Router
 
             $count = $this->snapshot->takeSnapshots($this->stashedUrls);
 
+            $this->scannedUrls = array_merge($this->scannedUrls, $this->stashedUrls);
+
             $this->logger->info("{$count} pages");
         });
 
@@ -234,7 +238,7 @@ class Router
 
                 $href = $href->toString();
 
-                if (in_array($href, $this->stashedUrls, true)) {
+                if (in_array($href, $this->scannedUrls, true)) {
                     continue;
                 }
 
