@@ -67,6 +67,7 @@ class Router
 
         $this->router->add('host <host>', function ($args) : void {
             $this->host = $args['host'];
+            $this->stashedUrls = [];
 
             $name = $this->input('snapshot name');
 
