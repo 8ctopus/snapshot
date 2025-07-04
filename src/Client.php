@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Oct8pus\Snapshot;
 
+use Crwlr\Url\Url;
 use HttpSoft\Message\Request;
 use Nimbly\Shuttle\Handler\CurlHandler;
 use Nimbly\Shuttle\Shuttle;
@@ -13,13 +14,13 @@ use Psr\Http\Message\ResponseInterface;
 
 class Client
 {
-    private readonly string $cacheBustingQuery;
+    private readonly array $cacheBusting;
     private readonly ClientInterface $client;
 
-    public function __construct(array $options, string $cacheBustingQuery)
+    public function __construct(array $options, array $cacheBusting)
     {
+        $this->cacheBusting = $cacheBusting;
         $default = [];
-        $this->cacheBustingQuery = $cacheBustingQuery;
 
         $this->client = new Shuttle(new CurlHandler($default + $options));
     }
@@ -31,11 +32,13 @@ class Client
 
     public function createRequest(string $url) : RequestInterface
     {
-        // FIX ME fragment #
-        $url .= str_contains($url, '?') ? '&' : '?';
-        $url .= $this->cacheBustingQuery;
+        $url = Url::parse($url);
+        $query = $url->queryString();
 
-        return (new Request('GET', $url))
+        $key = array_key_first($this->cacheBusting);
+        $query->set($key, $this->cacheBusting[$key]);
+
+        return (new Request('GET', $url->toString()))
             ->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36')
             ->withHeader('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8')
             ->withHeader('Accept-Language', 'en-US,en;q=0.9')

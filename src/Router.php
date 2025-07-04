@@ -7,6 +7,7 @@ namespace Oct8pus\Snapshot;
 use Apix\Log\Logger;
 use Clue\Commander\NoRouteFoundException;
 use Clue\Commander\Router as CommanderRouter;
+use Crwlr\Url\Url;
 use DiDom\Document;
 use HttpSoft\Message\Request;
 use RecursiveDirectoryIterator;
@@ -49,7 +50,9 @@ class Router
         ];
 
         // FIX ME - move to setting somewhere
-        $this->client = new Client($options, 'nocache');
+        $this->client = new Client($options, [
+            'nocache' => '',
+        ]);
     }
 
     public function setupRoutes() : self
@@ -149,11 +152,13 @@ class Router
                 return;
             }
 
+            $reference = Url::parse("https://{$this->host}");
+
             if (isset($args['urls'])) {
                 $this->stashedUrls = [];
 
                 foreach ($args['urls'] as $url) {
-                    $this->stashedUrls[] = "https://{$this->host}{$url}";
+                    $this->stashedUrls[] = $reference->resolve($url)->toString();
                 }
             }
 
@@ -206,36 +211,24 @@ class Router
             $candidates = array_unique($candidates);
             sort($candidates);
 
+            $reference = Url::parse("https://{$this->host}");
+
             $hidden = [];
 
             foreach ($candidates as $candidate) {
-                // remove query string and anchor
-                $href = preg_replace('/#.*$/', '', $candidate);
-                $href = preg_replace('/\?.*$/', '', $href);
-
-                if (empty($href)) {
-                    continue;
-                }
-
-                if (str_starts_with($href, '//')) {
-                    // convert protocol relative urls
-                    $href = "https:{$href}";
-                } elseif ($href[0] === '/') {
-                    // convert relative URLs to absolute
-                    $href = "https://{$this->host}{$href}";
-                }
+                $href = $reference->resolve($candidate);
 
                 // keep only internal links
-                if (!str_starts_with($href, "https://{$this->host}") || $href === "https://{$this->host}") {
+                if ($href->domain() !== $this->host) {
                     continue;
                 }
 
                 // ignore extensions
-                if (preg_match('/\.\w{3,4}$/', $href) === 1) {
+                if (preg_match('/\.\w{3,4}$/', $href->path()) === 1) {
                     continue;
                 }
 
-                if (in_array($href, $this->stashedUrls, true)) {
+                if (in_array($href->toString(), $this->stashedUrls, true)) {
                     continue;
                 }
 

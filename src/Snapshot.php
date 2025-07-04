@@ -47,7 +47,6 @@ class Snapshot extends Helper
         $request = $this->client->createRequest($url);
         $response = $this->client->download($request);
 
-
         $filename = $this->getFilename($url, 'json');
 
         $this->saveSnapshot($url, $filename, $request, $response);
