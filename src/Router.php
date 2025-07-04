@@ -168,7 +168,7 @@ class Router
             $this->logger->info("{$count} pages");
         });
 
-        $this->router->add('discover hidden', function () : void {
+        $this->router->add('discover', function () : void {
             if (!isset($this->host)) {
                 $this->logger->error('set host first');
                 return;
@@ -248,7 +248,7 @@ class Router
             $this->stashedUrls = $hidden;
 
             $count = count($hidden);
-            $this->logger->info("{$count} hidden links stashed");
+            $this->logger->info("{$count} links stashed");
         });
 
         $this->router->add('list', function () : void {
