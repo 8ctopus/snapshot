@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Oct8pus\Snapshot;
 
+use ErrorException;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -74,7 +75,12 @@ class Snapshot extends Helper
         $dir = dirname($filename);
 
         if (!is_dir($dir)) {
-            mkdir($dir, 0777, true);
+            try {
+                mkdir($dir, 0777, true);
+            } catch (ErrorException $exception) {
+                $this->logger?->error($exception->getMessage() . " - {$url}");
+                return;
+            }
         }
 
         $type = $response->getHeaderLine('content-type');
