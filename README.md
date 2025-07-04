@@ -6,11 +6,11 @@ _NOTE_: This is the result of a day of vibe coding in cursor, so it's experiment
 
 ## Features
 
-- **Website Snapshot**: Download and save website pages locally
-- **Sitemap Analysis**: Parse and analyze website sitemaps
-- **Hidden Page Discovery**: Find internal links not listed in the sitemap
-- **SEO Analysis**: Extract and analyze SEO metadata from pages
-- **Robots.txt Analysis**: Download and analyze robots.txt files
+- Website Snapshot: Download and save website pages locally
+- Robots.txt Analysis: Download and analyze robots.txt files
+- Sitemap Analysis: Parse and analyze website sitemaps
+- Hidden Page Discovery: Find internal links not listed in the sitemap
+- SEO Analysis: Extract and analyze SEO metadata from pages
 
 ## Usage
 
@@ -39,11 +39,11 @@ Sitemap: https://example.com/sitemap.xml
 > snapshot /page1 /page2
 2 pages
 
-# discover hidden pages not in sitemap (noindex)
-> discover hidden
-16 hidden links stashed
+# discover pages not in sitemap (noindex)
+> discover
+16 links stashed
 
-# snapshot hidden pages
+# snapshot discovered pages
 > snapshot
 16 pages
 
