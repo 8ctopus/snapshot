@@ -225,7 +225,7 @@ class Router
                 }
 
                 // ignore extensions
-                if (preg_match('/\.\w{3,4}$/', $href->path()) === 1) {
+                if (preg_match('/\.\w{3,4}$/', $href->path() ?? '') === 1) {
                     continue;
                 }
 
