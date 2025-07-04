@@ -8,6 +8,7 @@ use Apix\Log\Logger;
 use Clue\Commander\NoRouteFoundException;
 use Clue\Commander\Router as CommanderRouter;
 use Crwlr\Url\Url;
+use Crwlr\Url\Validator;
 use DiDom\Document;
 use HttpSoft\Message\Request;
 use RecursiveDirectoryIterator;
@@ -222,6 +223,11 @@ class Router
 
             foreach ($candidates as $candidate) {
                 $href = $reference->resolve($candidate);
+
+                if (Validator::url($href->toString()) === null) {
+                    $this->logger?->error("invalid url - {$href}");
+                    continue;
+                }
 
                 // keep only internal links
                 if ($href->host() !== $this->host) {
