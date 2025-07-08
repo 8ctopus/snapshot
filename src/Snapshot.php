@@ -54,7 +54,10 @@ class Snapshot extends Helper
 
         $status = $response->getStatusCode();
 
-        if ($status === 200) {
+        if ($status < 300) {
+            return true;
+        } elseif ($status < 400) {
+            $this->logger->warning("{$status} - {$url}");
             return true;
         }
 
