@@ -192,27 +192,31 @@ class Router
                     continue;
                 }
 
-                $document = new Document($file->getPathname(), true);
+                try {
+                    $document = new Document($file->getPathname(), true);
 
-                $links = $document->find('a[href]');
+                    $links = $document->find('a[href]');
 
-                foreach ($links as $link) {
-                    $href = $link->getAttribute('href');
-                    $candidates[] = $href;
-                }
+                    foreach ($links as $link) {
+                        $href = $link->getAttribute('href');
+                        $candidates[] = $href;
+                    }
 
-                $links = $document->find('link[rel="alternate"]');
+                    $links = $document->find('link[rel="alternate"]');
 
-                foreach ($links as $link) {
-                    $href = $link->getAttribute('href');
-                    $candidates[] = $href;
-                }
+                    foreach ($links as $link) {
+                        $href = $link->getAttribute('href');
+                        $candidates[] = $href;
+                    }
 
-                $links = $document->find('link[rel="next"]');
+                    $links = $document->find('link[rel="next"]');
 
-                foreach ($links as $link) {
-                    $href = $link->getAttribute('href');
-                    $candidates[] = $href;
+                    foreach ($links as $link) {
+                        $href = $link->getAttribute('href');
+                        $candidates[] = $href;
+                    }
+                } catch (ValueError $error) {
+                    $this->logger?->error($error->getMessage());
                 }
             }
 
