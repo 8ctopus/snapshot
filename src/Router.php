@@ -411,6 +411,10 @@ class Router
                     'search' => "~<!-- / The SEO Framework by Sybre Waaijer \| \d{1,2}\.\d{1,2}ms meta \| \d{1,2}\.\d{1,2}ms boot -->~",
                     'replace' => "<!-- / The SEO Framework by Sybre Waaijer | 0.0ms meta | 0.0ms boot -->"
                 ],
+                'wp-postratings-clean' => [
+                    'search' => '~data-nonce="(\w{10})"~',
+                    'replace' => 'data-nonce="0000000000"',
+                ],
                 /*
                 'seo-framework-full-remove' => [
                     'search' => '~<!-- /? ?The SEO Framework by Sybre Waaijer .*?-->~',
@@ -419,10 +423,6 @@ class Router
                 'gravatar-clean' => [
                     'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
                     'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
-                ],
-                'nonce-clean' => [
-                    'search' => '~data-nonce="(\w{10})"~',
-                    'replace' => 'data-nonce="0000000000"',
                 ],
                 'wordpress-cache-busting' => [
                     'search' => '~\?ver=\d{10}~',
@@ -549,6 +549,16 @@ class Router
                 'classicpress-20' => [
                     'search' => '~<meta itemprop="(.*?)" content="(.*?)" />~s',
                     'replace' => '<meta itemprop="$1" content="$2" >',
+                ],
+                */
+                /*
+                'noopener' => [
+                    'search' => '~ rel="noopener"~s',
+                    'replace' => '',
+                ],
+                'noopener-2' => [
+                    'search' => '~ rel="noreferrer noopener"~s',
+                    'replace' => '',
                 ],
                 */
             ];
