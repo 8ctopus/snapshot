@@ -47,6 +47,8 @@ class Router
         $this->stdin = $stdin;
 
         $options = [
+            // do not follow redirects
+            CURLOPT_FOLLOWLOCATION => false,
             // FIX ME - move to setting somewhere
             CURLOPT_SSL_VERIFYPEER => false,
         ];
