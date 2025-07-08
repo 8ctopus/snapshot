@@ -415,6 +415,10 @@ class Router
                     'search' => '~data-nonce="(\w{10})"~',
                     'replace' => 'data-nonce="0000000000"',
                 ],
+                'csfr-token' => [
+                    'search' => '~<meta name="csrf-token" content=".*?">~',
+                    'replace' => '<meta name="csrf-token" content="token">',
+                ],
                 /*
                 'seo-framework-full-remove' => [
                     'search' => '~<!-- /? ?The SEO Framework by Sybre Waaijer .*?-->~',
@@ -427,10 +431,6 @@ class Router
                 'wordpress-cache-busting' => [
                     'search' => '~\?ver=\d{10}~',
                     'replace' => '?ver=0000000000',
-                ],
-                'csfr-token' => [
-                    'search' => '~<meta name="csrf-token" content=".*?">~',
-                    'replace' => '<meta name="csrf-token" content="token">',
                 ],
                 'clean-end-of-file' => [
                     'search' => '~</html>\r?\n~',
@@ -551,11 +551,11 @@ class Router
                     'replace' => '<meta itemprop="$1" content="$2" >',
                 ],
                 */
-                /*
                 'noopener' => [
-                    'search' => '~ rel="noopener"~s',
+                    'search' => '~ rel="noopener( )"~s',
                     'replace' => '',
                 ],
+                /*
                 'noopener-2' => [
                     'search' => '~ rel="noreferrer noopener"~s',
                     'replace' => '',
