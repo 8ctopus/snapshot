@@ -551,13 +551,21 @@ class Router
                     'replace' => '<meta itemprop="$1" content="$2" >',
                 ],
                 */
+                /*
                 'noopener' => [
                     'search' => '~ rel="noopener( )"~s',
                     'replace' => '',
                 ],
+                */
                 /*
                 'noopener-2' => [
                     'search' => '~ rel="noreferrer noopener"~s',
+                    'replace' => '',
+                ],
+                */
+                /*
+                'class-post' => [
+                    'search' => '~ class="post"~s',
                     'replace' => '',
                 ],
                 */
