@@ -420,6 +420,16 @@ class Router
                     'replace' => '<meta name="csrf-token" content="token">',
                 ],
                 /*
+                'wordpress-cache-busting' => [
+                    'search' => '~\?ver=\d\.\d\.\d~',
+                    'replace' => '?ver=0.0.0',
+                ],
+                'disqus' => [
+                    'search' => '~wordpress 3\.1\.3 \d\.\d\.\d~',
+                    'replace' => 'wordpress 3.1.3 0.0.0',
+                ],
+                */
+                /*
                 'seo-framework-full-remove' => [
                     'search' => '~<!-- /? ?The SEO Framework by Sybre Waaijer .*?-->~',
                     'replace' => '',
