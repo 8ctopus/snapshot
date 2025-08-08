@@ -378,44 +378,50 @@ class Router
         $this->router->add('clean', function () : void {
             $rules = [
                 /*
-                'w3-total-cache-clean' => [
+                'clean-w3-total-cache' => [
                     'search' => '~<!--\s*Performance optimized by W3 Total Cache[\s\S]*?-->~',
                     'replace' => '',
                 ],
                 */
-                'cache-enabler-clean' => [
+                'clean-cache-enabler' => [
                     'search' => "~<!-- Cache Enabler by KeyCDN @ .*? -->~",
                     'replace' => '<!-- Cache Enabler by KeyCDN ... -->',
                 ],
                 /*
-                'cache-enabler-full-remove' => [
+                'remove-cache-enabler-full' => [
                     'search' => "~<!-- Cache Enabler by KeyCDN @ \w{3}, \d{2} May 202\d{1} \d{2}:\d{2}:\d{2} GMT \(https-index\.html\.gz\) -->~",
                     'replace' => '',
                 ],
                 */
                 /*
-                'yoast-clean' => [
+                'clean-yoast' => [
                     'search' => "~This site is optimized with the Yoast SEO plugin v\d{2}\.\d{1,2}~",
                     'replace' => "This site is optimized with the Yoast SEO plugin v0.0",
                 ],
-                'yoast-full-remove-1' => [
+                'remove-yoast-full-1' => [
                     'search' => '~<!-- This site is optimized with the Yoast SEO plugin v0\.0 - .*? -->~',
                     'replace' => '',
                 ],
-                'yoast-full-remove-2' => [
+                'remove-yoast-full-2' => [
                     'search' => '~<!-- / Yoast SEO plugin\. -->~',
                     'replace' => '',
                 ],
                 */
-                'seo-framework-clean' => [
+                'clean-seo-framework' => [
                     'search' => "~<!-- / The SEO Framework by Sybre Waaijer \| \d{1,2}\.\d{1,2}ms meta \| \d{1,2}\.\d{1,2}ms boot -->~",
                     'replace' => "<!-- / The SEO Framework by Sybre Waaijer | 0.0ms meta | 0.0ms boot -->"
                 ],
-                'wp-postratings-clean' => [
+                /*
+                'remove-seo-framework-full' => [
+                    'search' => '~<!-- /? ?The SEO Framework by Sybre Waaijer .*?-->~',
+                    'replace' => '',
+                ],
+                */
+                'clean-wp-postratings' => [
                     'search' => '~data-nonce="(\w{10})"~',
                     'replace' => 'data-nonce="0000000000"',
                 ],
-                'csfr-token' => [
+                'clean-csfr-token' => [
                     'search' => '~<meta name="csrf-token" content=".*?">~',
                     'replace' => '<meta name="csrf-token" content="token">',
                 ],
@@ -424,33 +430,22 @@ class Router
                     'search' => '~\?ver=\d\.\d\.\d~',
                     'replace' => '?ver=0.0.0',
                 ],
+                'wordpress-cache-busting-2' => [
+                    'search' => '~\?ver=\d{10}~',
+                    'replace' => '?ver=0000000000',
+                ],
                 'disqus' => [
                     'search' => '~wordpress 3\.1\.3 \d\.\d\.\d~',
                     'replace' => 'wordpress 3.1.3 0.0.0',
-                ],
-                */
-                /*
-                'seo-framework-full-remove' => [
-                    'search' => '~<!-- /? ?The SEO Framework by Sybre Waaijer .*?-->~',
-                    'replace' => '',
-                ],
-                'gravatar-clean' => [
-                    'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
-                    'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
-                ],
-                'wordpress-cache-busting' => [
-                    'search' => '~\?ver=\d{10}~',
-                    'replace' => '?ver=0000000000',
                 ],
                 'clean-end-of-file' => [
                     'search' => '~</html>\r?\n~',
                     'replace' => '</html>',
                 ],
                 */
-                /* REM
-                'algolia-clean' => [
-                    'search' => '~var algolia = 1;~',
-                    'replace' => 'var algolia = 0;',
+                'clean-gravatar' => [
+                    'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
+                    'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
                 ],
                 'classicpress-site' => [
                     'search' => '~<body class="(.*?)wp-singular page-template-default page (page-id-\d{1,4}) wp-theme-studio">~',
@@ -464,8 +459,6 @@ class Router
                     'search' => '~<body class="archive category category-(.*?) category-(\d{1,4}) wp-theme-support">~',
                     'replace' => '<body class="archive category category-$1 category-$2">',
                 ],
-                */
-                /*
                 'classicpress-2' => [
                     'search' => "~ type='text/css'~",
                     'replace' => '',
@@ -526,16 +519,14 @@ class Router
                     'search' => "~<hr />~",
                     'replace' => "<hr>",
                 ],
-                */
-//                'classicpress-15' => [
-//                    'search' => '~/\* <!\[CDATA\[ \*/\r?\n~',
-//                    'replace' => '',
-//                ],
-//                'classicpress-16' => [
-//                    'search' => '~/\* \]\]> \*/\r?\n~',
-//                    'replace' => '',
-//                ],
-                /*
+                'classicpress-15' => [
+                    'search' => '~/\* <!\[CDATA\[ \*/\r?\n~',
+                    'replace' => '',
+                ],
+                'classicpress-15-bis' => [
+                    'search' => '~/\* \]\]> \*/\r?\n~',
+                    'replace' => '',
+                ],
                 'classicpress-18' => [
                     'search' => '~\?ver=(6\.8\.1|cp_186010fd)~',
                     'replace' => '?ver=redacted',
@@ -552,30 +543,33 @@ class Router
                     'search' => "~<style id='core-block-supports-inline-css'>.*?</style>~s",
                     'replace' => '',
                 ],
-                'classicpress-17' => [
-                    'search' => '~</footer>(\r?\n)*\r?\n<script defer~s',
-                    'replace' => '</footer>$1<script defer',
-                ],
                 'classicpress-20' => [
                     'search' => '~<meta itemprop="(.*?)" content="(.*?)" />~s',
                     'replace' => '<meta itemprop="$1" content="$2" >',
                 ],
-                */
+                'date' => [
+                    'search' => '~Publié~',
+                    'replace' => 'Dernière mise à jour',
+                ],
                 /*
-                'noopener' => [
-                    'search' => '~ rel="noopener( )"~s',
+                'classicpress-17' => [
+                    'search' => '~</footer>(\r?\n)*\r?\n<script defer~s',
+                    'replace' => '</footer>$1<script defer',
+                ],
+                'classicpress-21' => [
+                    'search' => '~ class="post"~s',
                     'replace' => '',
                 ],
-                */
-                /*
-                'noopener-2' => [
+                'classicpress-22' => [
+                    'search' => '~ rel="noopener ?"~s',
+                    'replace' => '',
+                ],
+                'classicpress-23' => [
                     'search' => '~ rel="noreferrer noopener"~s',
                     'replace' => '',
                 ],
-                */
-                /*
-                'class-post' => [
-                    'search' => '~ class="post"~s',
+                'classicpress-24' => [
+                    'search' => '~ rel="noopener noreferrer"~s',
                     'replace' => '',
                 ],
                 */
