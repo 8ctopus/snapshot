@@ -228,6 +228,10 @@ class Router
             $hidden = [];
 
             foreach ($candidates as $candidate) {
+                if (str_starts_with($candidate, 'javaScript:')) {
+                    continue;
+                }
+
                 $href = $reference->resolve($candidate);
 
                 if (Validator::url($href->toString()) === null) {
