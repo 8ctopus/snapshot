@@ -188,7 +188,7 @@ class Router
             $candidates = [];
 
             foreach ($iterator as $file) {
-                if (!$file->isFile() || $file->getExtension() !== 'html') {
+                if (!$file->isFile() || $file->getExtension() !== 'html' || !filesize($file->getPathname())) {
                     continue;
                 }
 
@@ -291,7 +291,7 @@ class Router
             );
 
             foreach ($iterator as $file) {
-                if (!$file->isFile() || $file->getExtension() !== 'html') {
+                if (!$file->isFile() || $file->getExtension() !== 'html' || !filesize($file->getPathname())) {
                     continue;
                 }
 
