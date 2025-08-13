@@ -199,21 +199,21 @@ class Router
 
                     foreach ($links as $link) {
                         $href = $link->getAttribute('href');
-                        $candidates[] = $href;
+                        $candidates[] = urldecode($href);
                     }
 
                     $links = $document->find('link[rel="alternate"]');
 
                     foreach ($links as $link) {
                         $href = $link->getAttribute('href');
-                        $candidates[] = $href;
+                        $candidates[] = urldecode($href);
                     }
 
                     $links = $document->find('link[rel="next"]');
 
                     foreach ($links as $link) {
                         $href = $link->getAttribute('href');
-                        $candidates[] = $href;
+                        $candidates[] = urldecode($href);
                     }
                 } catch (ValueError $error) {
                     $this->logger?->error($error->getMessage());
@@ -251,12 +251,12 @@ class Router
 
                 // strip fragment
                 $href->fragment('');
-                $query = $href->queryString();
 
                 // strip nocache if present
+                $query = $href->queryString();
                 $query->remove('nocache');
 
-                $href = $href->toString();
+                $href = urldecode($href->toString());
 
                 if (in_array($href, $this->scannedUrls, true)) {
                     continue;
