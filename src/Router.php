@@ -472,7 +472,7 @@ class Router
                     'replace' => '',
                 ],
                 'classicpress-4' => [
-                    'search' => "~(<link rel='(?:stylesheet|dns-prefetch)' .*?)/>~",
+                    'search' => "~(<link rel='(?:stylesheet|dns-prefetch)' .*?) ?/>~",
                     'replace' => '$1>',
                 ],
                 'classicpress-5' => [
@@ -492,15 +492,15 @@ class Router
                     'replace' => '<img decoding="async" fetchpriority="high"',
                 ],
                 'classicpress-8' => [
-                    'search' => '~<img (.*?)\/>~s',
+                    'search' => '~<img (.*?) ?/>~s',
                     'replace' => '<img $1>',
                 ],
                 'classicpress-9' => [
-                    'search' => '~^\t<style>img:is\(\[sizes="auto" i\], \[sizes\^="auto," i\]\) { contain-intrinsic-size: 3000px 1500px }</style>\r?\n~m',
+                    'search' => '~^\t<style>img:is\(\[sizes="auto" i\], \[sizes\^="auto," i\]\) { contain-intrinsic-size: 3000px 1500px }</style>\r?\n\t~m',
                     'replace' => '',
                 ],
                 'classicpress-10' => [
-                    'search' => "~<style id='global-styles-inline-css'>.*?</style>~s",
+                    'search' => "~<style id='global-styles-inline-css'>.*?</style>\r?\n~s",
                     'replace' => '',
                 ],
                 'classicpress-11' => [
@@ -532,7 +532,7 @@ class Router
                     'replace' => '',
                 ],
                 'classicpress-18' => [
-                    'search' => '~\?ver=(6\.8\.1|cp_186010fd)~',
+                    'search' => '~\?ver=(6\.8\.2|cp_186010fd)~',
                     'replace' => '?ver=redacted',
                 ],
                 'classicpress-site' => [
@@ -551,14 +551,19 @@ class Router
                     'search' => '~<meta itemprop="(.*?)" content="(.*?)" />~s',
                     'replace' => '<meta itemprop="$1" content="$2" >',
                 ],
+                'classicpress-17' => [
+                    'search' => '~</footer>(\r?\n)*\r?\n~',
+                    'replace' => '</footer>
+',
+                ],
+                'classicpress-disqus' => [
+                    'search' => '~wordpress 3\.1\.3 6\.(8|2)\.(2|6)~',
+                    'replace' => 'wordpress 3.1.3 redacted',
+                ],
+                /*
                 'date' => [
                     'search' => '~Publié~',
                     'replace' => 'Dernière mise à jour',
-                ],
-                /*
-                'classicpress-17' => [
-                    'search' => '~</footer>(\r?\n)*\r?\n<script defer~s',
-                    'replace' => '</footer>$1<script defer',
                 ],
                 'classicpress-21' => [
                     'search' => '~ class="post"~s',
