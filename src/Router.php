@@ -451,6 +451,7 @@ class Router
                     'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
                     'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
                 ],
+                /* for classicpress migration
                 'classicpress-site' => [
                     'search' => '~<body class="(.*?)wp-singular page-template-default page (page-id-\d{1,4}) wp-theme-studio">~',
                     'replace' => '<body class="$1page-template-default page $2">',
@@ -524,12 +525,14 @@ class Router
                     'replace' => "<hr>",
                 ],
                 'classicpress-15' => [
-                    'search' => '~/\* <!\[CDATA\[ \*/\r?\n~',
-                    'replace' => '',
+                */
+                //    'search' => '~/\* <!\[CDATA\[ \*/\r?\n~',
+                /*    'replace' => '',
                 ],
                 'classicpress-15-bis' => [
-                    'search' => '~/\* \]\]> \*/\r?\n~',
-                    'replace' => '',
+                */
+                //    'search' => '~/\* \]\]> \*/\r?\n~',
+                /*    'replace' => '',
                 ],
                 'classicpress-18' => [
                     'search' => '~\?ver=(6\.8\.2|cp_186010fd)~',
@@ -560,6 +563,7 @@ class Router
                     'search' => '~wordpress 3\.1\.3 6\.(8|2)\.(2|6)~',
                     'replace' => 'wordpress 3.1.3 redacted',
                 ],
+                */
                 /*
                 'date' => [
                     'search' => '~Publié~',
