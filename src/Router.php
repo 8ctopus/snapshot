@@ -451,6 +451,10 @@ class Router
                     'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
                     'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
                 ],
+                'classicpress-18' => [
+                    'search' => '~\?ver=cp_[a-z0-9]{8}~',
+                    'replace' => '?ver=redacted',
+                ],
                 /* for classicpress migration
                 'classicpress-site' => [
                     'search' => '~<body class="(.*?)wp-singular page-template-default page (page-id-\d{1,4}) wp-theme-studio">~',
@@ -533,10 +537,6 @@ class Router
                 */
                 //    'search' => '~/\* \]\]> \*/\r?\n~',
                 /*    'replace' => '',
-                ],
-                'classicpress-18' => [
-                    'search' => '~\?ver=(6\.8\.2|cp_186010fd)~',
-                    'replace' => '?ver=redacted',
                 ],
                 'classicpress-site' => [
                     'search' => '~<body(.*?) class="(home )?(?:wp-singular )?(.*?) wp-theme-.*?">~',
