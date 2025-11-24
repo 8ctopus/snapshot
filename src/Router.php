@@ -401,15 +401,23 @@ class Router
                     'replace' => '',
                 ],
                 */
+                'classicpress-cache-busting' => [
+                    'search' => '~\?ver=((cp_[a-z0-9]{8})|(\d{10}))?~',
+                    'replace' => '?ver=redacted',
+                ],
                 'clean-wp-postratings' => [
                     'search' => '~data-nonce="(\w{10})"~',
                     'replace' => 'data-nonce="0000000000"',
+                ],
+                'clean-gravatar' => [
+                    'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
+                    'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
                 ],
                 'clean-csfr-token' => [
                     'search' => '~<meta name="csrf-token" content=".*?">~',
                     'replace' => '<meta name="csrf-token" content="token">',
                 ],
-                /*
+                /* temporary rules
                 'disqus' => [
                     'search' => '~wordpress 3\.1\.3 \d\.\d\.\d~',
                     'replace' => 'wordpress 3.1.3 0.0.0',
@@ -418,16 +426,6 @@ class Router
                     'search' => '~</html>\r?\n~',
                     'replace' => '</html>',
                 ],
-                */
-                'clean-gravatar' => [
-                    'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
-                    'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
-                ],
-                'classicpress-cache-busting' => [
-                    'search' => '~\?ver=((cp_[a-z0-9]{8})|(\d{10}))?~',
-                    'replace' => '?ver=redacted',
-                ],
-                /* temporary rules
                 'clean-wp-postratings-temp' => [
                     'search' => '~width="12" height="12" ~',
                     'replace' => '',
