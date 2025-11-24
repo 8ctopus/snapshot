@@ -586,6 +586,12 @@ class Router
                     'replace' => '',
                 ],
                 */
+                /*
+                'clean-wp-postratings-temp' => [
+                    'search' => '~width="12" height="12" ~',
+                    'replace' => '',
+                ],
+                */
             ];
 
             $iterator = new RecursiveIteratorIterator(
