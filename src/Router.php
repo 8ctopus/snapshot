@@ -451,8 +451,8 @@ class Router
                     'search' => '~https://secure.gravatar.com/avatar/(\w{32,64})~',
                     'replace' => "https://secure.gravatar.com/avatar/00000000000000000000000000000000",
                 ],
-                'classicpress-18' => [
-                    'search' => '~\?ver=cp_[a-z0-9]{8}~',
+                'classicpress-cache-busting' => [
+                    'search' => '~\?ver=((cp_[a-z0-9]{8})|(\d{10}))?~',
                     'replace' => '?ver=redacted',
                 ],
                 /* for classicpress migration
