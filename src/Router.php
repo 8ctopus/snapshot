@@ -381,12 +381,6 @@ class Router
 
         $this->router->add('clean', function () : void {
             $rules = [
-                /*
-                'clean-w3-total-cache' => [
-                    'search' => '~<!--\s*Performance optimized by W3 Total Cache[\s\S]*?-->~',
-                    'replace' => '',
-                ],
-                */
                 'clean-cache-enabler' => [
                     'search' => "~<!-- Cache Enabler by KeyCDN @ .*? -->~",
                     'replace' => '<!-- Cache Enabler by KeyCDN ... -->',
@@ -394,20 +388,6 @@ class Router
                 /*
                 'remove-cache-enabler-full' => [
                     'search' => "~<!-- Cache Enabler by KeyCDN @ \w{3}, \d{2} May 202\d{1} \d{2}:\d{2}:\d{2} GMT \(https-index\.html\.gz\) -->~",
-                    'replace' => '',
-                ],
-                */
-                /*
-                'clean-yoast' => [
-                    'search' => "~This site is optimized with the Yoast SEO plugin v\d{2}\.\d{1,2}~",
-                    'replace' => "This site is optimized with the Yoast SEO plugin v0.0",
-                ],
-                'remove-yoast-full-1' => [
-                    'search' => '~<!-- This site is optimized with the Yoast SEO plugin v0\.0 - .*? -->~',
-                    'replace' => '',
-                ],
-                'remove-yoast-full-2' => [
-                    'search' => '~<!-- / Yoast SEO plugin\. -->~',
                     'replace' => '',
                 ],
                 */
@@ -430,14 +410,6 @@ class Router
                     'replace' => '<meta name="csrf-token" content="token">',
                 ],
                 /*
-                'wordpress-cache-busting' => [
-                    'search' => '~\?ver=\d\.\d\.\d~',
-                    'replace' => '?ver=0.0.0',
-                ],
-                'wordpress-cache-busting-2' => [
-                    'search' => '~\?ver=\d{10}~',
-                    'replace' => '?ver=0000000000',
-                ],
                 'disqus' => [
                     'search' => '~wordpress 3\.1\.3 \d\.\d\.\d~',
                     'replace' => 'wordpress 3.1.3 0.0.0',
@@ -455,137 +427,6 @@ class Router
                     'search' => '~\?ver=((cp_[a-z0-9]{8})|(\d{10}))?~',
                     'replace' => '?ver=redacted',
                 ],
-                /* for classicpress migration
-                'classicpress-site' => [
-                    'search' => '~<body class="(.*?)wp-singular page-template-default page (page-id-\d{1,4}) wp-theme-studio">~',
-                    'replace' => '<body class="$1page-template-default page $2">',
-                ],
-                'classicpress-support' => [
-                    'search' => '~<body class="wp-singular post-template-default single single-post postid-(\d{1,4}) single-format-standard wp-theme-support">~',
-                    'replace' => '<body class="post-template-default single single-post postid-$1 single-format-standard">',
-                ],
-                'classicpress-support-2' => [
-                    'search' => '~<body class="archive category category-(.*?) category-(\d{1,4}) wp-theme-support">~',
-                    'replace' => '<body class="archive category category-$1 category-$2">',
-                ],
-                'classicpress-2' => [
-                    'search' => "~ type='text/css'~",
-                    'replace' => '',
-                ],
-                'classicpress-3' => [
-                    'search' => '~ type="text/javascript"~',
-                    'replace' => '',
-                ],
-                'classicpress-4' => [
-                    'search' => "~(<link rel='(?:stylesheet|dns-prefetch)' .*?) ?/>~",
-                    'replace' => '$1>',
-                ],
-                'classicpress-5' => [
-                    'search' => '~<script(.*?)src="(.*?)" id="(.*?)"~',
-                    'replace' => "<script$1src='$2' id='$3'",
-                ],
-                'classicpress-5-bis' => [
-                    'search' => '~<script id="(.*?)">~',
-                    'replace' => "<script id='$1'>",
-                ],
-                'classicpress-6' => [
-                    'search' => '~<img loading="lazy" decoding="async"~',
-                    'replace' => '<img decoding="async" loading="lazy"',
-                ],
-                'classicpress-7' => [
-                    'search' => '~<img fetchpriority="high" decoding="async"~',
-                    'replace' => '<img decoding="async" fetchpriority="high"',
-                ],
-                'classicpress-8' => [
-                    'search' => '~<img (.*?) ?/>~s',
-                    'replace' => '<img $1>',
-                ],
-                'classicpress-9' => [
-                    'search' => '~^\t<style>img:is\(\[sizes="auto" i\], \[sizes\^="auto," i\]\) { contain-intrinsic-size: 3000px 1500px }</style>\r?\n\t~m',
-                    'replace' => '',
-                ],
-                'classicpress-10' => [
-                    'search' => "~<style id='global-styles-inline-css'>.*?</style>\r?\n~s",
-                    'replace' => '',
-                ],
-                'classicpress-11' => [
-                    'search' => '~<script type="speculationrules">.*?</script>~s',
-                    'replace' => '',
-                ],
-                'classicpress-12' => [
-                    'search' => '~sizes="auto, ~',
-                    'replace' => 'sizes="',
-                ],
-                'classicpress-13' => [
-                    'search' => "~<meta name='robots' content='(.*?)' />~",
-                    'replace' => "<meta name='robots' content='$1'>",
-                ],
-                'classicpress-14' => [
-                    'search' => "~<br />~",
-                    'replace' => "<br>",
-                ],
-                'classicpress-14-bis' => [
-                    'search' => "~<hr />~",
-                    'replace' => "<hr>",
-                ],
-                'classicpress-15' => [
-                */
-                //    'search' => '~/\* <!\[CDATA\[ \*/\r?\n~',
-                /*    'replace' => '',
-                ],
-                'classicpress-15-bis' => [
-                */
-                //    'search' => '~/\* \]\]> \*/\r?\n~',
-                /*    'replace' => '',
-                ],
-                'classicpress-site' => [
-                    'search' => '~<body(.*?) class="(home )?(?:wp-singular )?(.*?) wp-theme-.*?">~',
-                    'replace' => '<body$1 class="$2$3">',
-                ],
-                'classicpress-gravatar' => [
-                    'search' => "~height='120' width='120' decoding='async'>~",
-                    'replace' => "height='120' width='120' loading='lazy' decoding='async'>",
-                ],
-                'classicpress-19' => [
-                    'search' => "~<style id='core-block-supports-inline-css'>.*?</style>~s",
-                    'replace' => '',
-                ],
-                'classicpress-20' => [
-                    'search' => '~<meta itemprop="(.*?)" content="(.*?)" />~s',
-                    'replace' => '<meta itemprop="$1" content="$2" >',
-                ],
-                'classicpress-17' => [
-                    'search' => '~</footer>(\r?\n)*\r?\n~',
-                    'replace' => '</footer>
-',
-                ],
-                'classicpress-disqus' => [
-                    'search' => '~wordpress 3\.1\.3 6\.(8|2)\.(2|6)~',
-                    'replace' => 'wordpress 3.1.3 redacted',
-                ],
-                */
-                /*
-                'date' => [
-                    'search' => '~Publié~',
-                    'replace' => 'Dernière mise à jour',
-                ],
-                'classicpress-21' => [
-                    'search' => '~ class="post"~s',
-                    'replace' => '',
-                ],
-                'classicpress-22' => [
-                    'search' => '~ rel="noopener ?"~s',
-                    'replace' => '',
-                ],
-                'classicpress-23' => [
-                    'search' => '~ rel="noreferrer noopener"~s',
-                    'replace' => '',
-                ],
-                'classicpress-24' => [
-                    'search' => '~ rel="noopener noreferrer"~s',
-                    'replace' => '',
-                ],
-                */
                 /* temporary rules
                 'clean-wp-postratings-temp' => [
                     'search' => '~width="12" height="12" ~',
