@@ -586,10 +586,76 @@ class Router
                     'replace' => '',
                 ],
                 */
-                /*
+                /* temporary rules
                 'clean-wp-postratings-temp' => [
                     'search' => '~width="12" height="12" ~',
                     'replace' => '',
+                ],
+                'clean-clearfix-1' => [
+                    'search' => '~<div id="page-header" class="clearfix">~',
+                    'replace' => '<div id="page-header">',
+                ],
+                'clean-clearfix-2' => [
+                    'search' => '~<article id="post-\d*?" class="clearfix post-\d*? post type-post status-publish format-standard hentry category-.*? (has_thumb)?">~',
+                    'replace' => '<article>',
+                ],
+                'clean-bootstrap-css' => [
+                    'search' => <<<TXT
+                    ~<link rel='stylesheet' id='bootstrap-css' rel="preload" as="style" href='https://cdnjs\.cloudflare\.com/ajax/libs/twitter-bootstrap/4\.3\.1/css/bootstrap\.min\.css' media='all' integrity="sha256-YLGeXaapI0/5IgZopewRJcFXomhRMlYYjugPLSyNjTY=" crossorigin="anonymous">~
+                    TXT,
+                    'replace' => <<<TXT
+                    <link rel='stylesheet' id='bootstrap-css' rel="preload" as="style" href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/css/bootstrap.min.css' media='all' integrity="sha512-rt/SrQ4UNIaGfDyEXZtNcyWvQeOq0QLygHluFQcSjaGB04IxWhal71tKuzP6K8eYXYB6vJV4pHkXcmFGGQ1/0w==" crossorigin="anonymous" referrerpolicy="no-referrer">
+                    TXT,
+                ],
+                'clean-bootstrap-js' => [
+                    'search' => <<<TXT
+                    ~<script defer src='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.min.js' id='bootstrap-js' integrity="sha256-CjSoeELFOcH0/uxWu6mC/Vlrc1AARqbm/jiiImDGV3s=" crossorigin="anonymous"></script>~
+                    TXT,
+                    'replace' => <<<TXT
+                    <script defer src='https://cdnjs.cloudflare.com/ajax/libs/bootstrap/4.6.2/js/bootstrap.min.js' id='bootstrap-js' integrity="sha512-7rusk8kGPFynZWu26OKbTeI+QPoYchtxsmPeBqkHIEXJxeun4yJ4ISYe7C6sz9wdxeE1Gk3VxsIWgCZTc+vX3g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                    TXT,
+                ],
+                'clean-jquery' => [
+                    'search' => <<<TXT
+                    ~<script src='https://cdnjs\.cloudflare\.com/ajax/libs/jquery/3\.5\.1/jquery\.min\.js' id='jquery-js' integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo\+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>~
+                    TXT,
+                    'replace' => <<<TXT
+                    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js' id='jquery-js' integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                    TXT,
+                ],
+                'clean-popper' => [
+                    'search' => <<<TXT
+                    ~<script defer src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.15.0/umd/popper.min.js' id='popper-js' integrity="sha256-fTuUgtT7O2rqoImwjrhDgbXTKUwyxxujIMRIK7TbuNU=" crossorigin="anonymous"></script>~
+                    TXT,
+                    'replace' => <<<TXT
+                    <script defer src='https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.1/umd/popper.min.js' id='popper-js' integrity="sha512-ubuT8Z88WxezgSqf3RLuNi5lmjstiJcyezx34yIU2gAHonIi27Na7atqzUZCOoY4CExaoFumzOsFQ2Ch+I/HCw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+                    TXT,
+                ],
+                'clean-fontawesome' => [
+                    'search' => <<<TXT
+                    ~<link rel='stylesheet' id='font-awesome-css' rel="preload" as="style" href='https://cdnjs\.cloudflare\.com/ajax/libs/font-awesome/5\.15\.3/css/all\.min\.css' media='all' integrity="sha512-iBBXm8fW90\+nuLcSKlbmrPcLa0OT92xO1BIsZ\+ywDWZCvqsWgccV3gFoRBv0z\+8dLJgyAHIhR35VZc2oM/gI1w==" crossorigin="anonymous">~
+                    TXT,
+                    'replace' => <<<TXT
+                    <link rel='stylesheet' id='font-awesome-css' rel="preload" as="style" href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css' media='all' integrity="sha512-q3eWabyZPc1XTCmF+8/LuE1ozpg5xxn7iO89yfSOd5/oKvyqLngoNGsx8jq92Y8eXJ/IRxQbEC+FGSYxtk2oiw==" crossorigin="anonymous" referrerpolicy="no-referrer">
+                    TXT,
+                ],
+                'cleanup-fullwidth' => [
+                    'search' => '~class="fullwidth ~',
+                    'replace' => 'class="',
+                ],
+                'cleanup-read-article' => [
+                    'search' => '~class="read-article text-end">Read article~',
+                    'replace' => 'class="read-article text-end"> Read article',
+                ],
+                'cleanup-back-to-top' => [
+                    'search' => '~
+<!-- Back to top button -->~',
+                    'replace' => '<!-- Back to top button -->',
+                ],
+                'cleanup-back-to-top-two' => [
+                    'search' => '~</a></body>~',
+                    'replace' => '</a>
+</body>',
                 ],
                 */
             ];
