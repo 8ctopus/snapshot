@@ -402,7 +402,7 @@ class Router
                 ],
                 */
                 'classicpress-cache-busting' => [
-                    'search' => '~\?ver=((cp_[a-z0-9]{8})|(\d{10}))?~',
+                    'search' => '~\?ver=(cp_[a-z0-9]{8}|\d{10}|(\d\.\d{1,2}\.\d))+~',
                     'replace' => '?ver=redacted',
                 ],
                 'clean-wp-postratings' => [
@@ -416,6 +416,10 @@ class Router
                 'clean-csfr-token' => [
                     'search' => '~<meta name="csrf-token" content=".*?">~',
                     'replace' => '<meta name="csrf-token" content="token">',
+                ],
+                'nav-search-form' => [
+                    'search' => '~ *<!--\s++<form.*?-->~s',
+                    'replace' => '',
                 ],
                 /* temporary rules
                 'disqus' => [
