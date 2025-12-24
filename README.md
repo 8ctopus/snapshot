@@ -51,7 +51,12 @@ Sitemap: https://example.com/sitemap.xml
 # extract SEO information (see seo.txt in snapshot dir)
 extract seo
 SEO extracted
+
+# cleanup html using regex (allows to compare things such as versions update)
+cleanup
 ```
+
+Once you have done the above steps twice, you can easily compare before and after using your favorite diff tool.
 
 ## Output
 
